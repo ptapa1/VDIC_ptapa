@@ -1,0 +1,8 @@
+//
+// File created by:  xrun
+// Do not modify this file
+
+s1::(16Oct2021:23:39:23):( xrun -compile -l xrun_compile.log -F tb.f -v93 -define DEBUG +nowarnDSEM2009 +nowarnDSEMEL +nowarnCGDEFN -xmlibdirname INCA_libs_gui +access+r +gui +overwrite -nocopyright )
+s2::(16Oct2021:23:39:23):( xrun -elaborate -l xrun_elaborate.log -F tb.f -v93 -define DEBUG +nowarnDSEM2009 +nowarnDSEMEL +nowarnCGDEFN -xmlibdirname INCA_libs_gui +access+r +gui +overwrite -nocopyright )
+s3::(16Oct2021:23:39:24):( xrun -F tb.f -v93 -define DEBUG +nowarnDSEM2009 +nowarnDSEMEL +nowarnCGDEFN -xmlibdirname INCA_libs_gui +access+r +gui +overwrite -nocopyright -l xrun_gui.log )
+s4::(16Oct2021:23:40:47):( xrun -F tb.f -v93 -define DEBUG +nowarnDSEM2009 +nowarnDSEMEL +nowarnCGDEFN -xmlibdirname INCA_libs_gui +access+r +gui +overwrite -nocopyright -l xrun_gui.log "-s " )

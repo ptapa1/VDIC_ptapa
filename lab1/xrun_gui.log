@@ -1,0 +1,69 @@
+TOOL:	xrun	19.09-s003: Started on Oct 16, 2021 at 23:40:47 CEST
+xrun
+	-F tb.f
+		-F ./dut.f
+			mtm_Alu.vp
+		alu_tb.sv
+	-v93
+	-define DEBUG
+	+nowarnDSEM2009
+	+nowarnDSEMEL
+	+nowarnCGDEFN
+	-xmlibdirname INCA_libs_gui
+	+access+r
+	+gui
+	+overwrite
+	-nocopyright
+	-l xrun_gui.log
+	-s
+Recompiling... reason: file './alu_tb.sv' is newer than expected.
+	expected: Sat Oct 16 23:39:00 2021
+	actual:   Sat Oct 16 23:40:32 2021
+file: ./alu_tb.sv
+                    automatic bit [31:0] expected = get_expected(A, B, op);
+                                                                        |
+xmvlog: *W,ENUMERR (./alu_tb.sv,107|72): This assignment is a violation of SystemVerilog strong typing rules for enumeration datatypes.
+	module worklib.top:sv
+		errors: 0, warnings: 1
+		Caching library 'worklib' ....... Done
+	Elaborating the design hierarchy:
+	Top level design units:
+		top
+	Building instance overlay tables: ....
+                    automatic bit [31:0] expected = get_expected(A, B, op);
+                                                                        |
+xmelab: *W,ENUMERR (./alu_tb.sv,107|72): This assignment is a violation of SystemVerilog strong typing rules for enumeration datatypes.
+................ Done
+	Generating native compiled code:
+		worklib.top:sv <0x3853afa6>
+			streams:   9, words: 14002
+	Building instance specific data structures.
+	Loading native compiled code:     .................... Done
+	Design hierarchy summary:
+		                 Instances  Unique
+		Modules:                 5       5
+		Registers:              72      72
+		Scalar wires:            8       -
+		Vectored wires:          2       -
+		Always blocks:          12      12
+		Initial blocks:          3       3
+		Cont. assignments:       0       1
+		Pseudo assignments:      1       1
+		Assertions:              1       1
+		Simulation timescale:  1ps
+	Writing initial simulation snapshot: worklib.top:sv
+xcelium> 
+xcelium> source /cad/XCELIUM1909/tools/xcelium/files/xmsimrc
+xcelium> 
+-------------------------------------
+Relinquished control to SimVision...
+# Restoring simulation environment...
+xcelium> input -quiet .reinvoke.sim
+xcelium> file delete .reinvoke.sim
+xcelium> run
+0 DEBUG: reset_alu
+Simulation complete via $finish(1) at time 4020 NS + 0
+./alu_tb.sv:126     $finish;
+xcelium> ^C
+xcelium> exit
+TOOL:	xrun	19.09-s003: Exiting on Oct 16, 2021 at 23:41:43 CEST  (total: 00:00:56)

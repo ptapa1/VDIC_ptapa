@@ -1,0 +1,29 @@
+TOOL:	xrun	19.09-s003: Started on Oct 07, 2021 at 15:48:30 CEST
+xrun
+	-F tb.f
+		apple.v
+		apple_tb.v
+	-v93
+	+nowarnDSEM2009
+	+nowarnDSEMEL
+	+nowarnCGDEFN
+	-xmlibdirname INCA_libs_gui
+	+access+r
+	+gui
+	+overwrite
+	-nocopyright
+	-covtest lab01
+	-l xrun_gui.log
+
+-------------------------------------
+Relinquished control to SimVision...
+xcelium> 
+xcelium> source /cad/XCELIUM1909/tools/xcelium/files/xmsimrc
+xcelium> xmsim: *W,NCTERM: Simulation received SIGTERM signal from process 13939, user id 4046 (<unknown>).
+
+coverage setup:
+  workdir  :  ./cov_work
+  scope    :  scope
+  testname :  lab01
+^C
+xcelium> TOOL:	xrun	19.09-s003: Exiting on Oct 07, 2021 at 15:52:50 CEST  (total: 00:04:20)
