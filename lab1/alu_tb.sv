@@ -9,13 +9,13 @@ typedef enum bit[2:0] {and_op = 3'b000,
     or_op                    = 3'b001,
     add_op                   = 3'b100,
     sub_op                   = 3'b101} operation_t;
-bit         	sin;
+bit         	sin=1;
 bit         		sout;
 bit                clk;
 bit                rst_n;
 //operation_t        op_set;
 
-assign op = sin;
+//assign op = sin;
 
 string             test_result = "PASSED";
 
@@ -70,23 +70,23 @@ endfunction : get_data
 //------------------------
 // Tester main
 
-bit [31:0] A,B; 
-bit [31:0] result;
+bit [31:0] A,B,C; 
+bit [89:0] result;
 bit [3:0] crc;
 
 operation_t operation;
 
 initial begin : tester
     reset_alu();
-	
-	
     repeat (1) begin : tester_main
         @(negedge clk);
-	    	
+	    
         operation = get_op();
         A      = get_data();
         B      = get_data();
-	    crc = get_crc(B,A,operation);
+        //A      = 32'h0000;
+        //B      = 32'h0000;
+	    get_crc(B,A,operation,crc);
 	    send_data(B[31:24]);
 	    send_data(B[23:16]);
 	    send_data(B[15:8]);
@@ -96,52 +96,19 @@ initial begin : tester
 	    send_data(A[15:8]);
 	    send_data(A[7:0]);
 	    send_command(operation,crc);
-        //case (operation) // handle the start signal
-        //    and_op: begin : case_and_op
-        //        @(negedge clk);
-	    //        result = A & B;
-        //    end
-        //    or_op: begin : case_or_op
-        //        @(negedge clk);
-	    //        result = A | B;
-        //    end
-        //    add_op: begin : case_add_op
-        //        @(negedge clk);
-	    //        result = A + B;
-        //    end
-        //    sub_op: begin : case_sub_op
-        //        @(negedge clk);
-	    //        result = A - B;
-        //    end
-        //    default: begin : case_default
-        //        @(negedge clk);
-        //
-        //        //------------------------------------------------------------------------------
-        //        // temporary data check - scoreboard will do the job later
-        //        begin
-        //            automatic bit [31:0] expected = get_expected(A, B, operation);
-        //            if(result === expected) begin
-        //                //`ifdef DEBUG
-        //                $display("PASSED");
-        //                $display("Test passed for A=%0d B=%0d op_set=%0d", A, B, operation);
-        //                test_result = "PASSED";
-        //                //`endif
-        //            end
-        //            else begin
-        //                $display("Test FAILED for A=%0d B=%0d op_set=%0d", A, B, operation);
-        //                $display("Expected: %d  received: %d", expected, result);
-        //                test_result = "FAILED";
-        //            end;
-        //            
-        //            $display("%0d",crc);
-        //        end
-        //
-        //    end
-        //endcase // case (op_set)
-    // print coverage after each loop
-    // $strobe("%0t coverage: %.4g\%",$time, $get_coverage());
-    // if($get_coverage() == 100) break;
+	    read_data(sout,C[31:24]);
+        read_data(sout,C[23:16]);
+	    read_data(sout,C[15:8]);
+	    read_data(sout,C[7:0]);
+	    read_command(sout,C[7:0]);
+	   
+	    for(int i=0;i<90;i++) begin
+		    @(negedge clk);
+		    result[i] = sin;
+			$display("%0d",i);
+		end
     end
+    
     $finish;
 end : tester
 
@@ -162,77 +129,65 @@ endtask
 //------------------------------------------------------------------------------
 
 task send_data;
-	input[7:0] in_data;
+	input[7:0] A;
     reg [10:0] packet = 11'b00000000001;
-	reg [4:0] bit_ctr =11;
-	
-    @(negedge clk);
-	    	packet[8:1]<= in_data[7:0];
-	    	repeat(11) begin
-		    	sin <= packet[bit_ctr];
-	    		$display("%0b",sin);
-	    		if(bit_ctr != 0)
-		    		bit_ctr <= bit_ctr-1;
-	    		else
-		    		bit_ctr = 11;
-	    	end
+
+		packet[8:1] = A[7:0];
+		for(int i=10;i>=0;i--) begin
+			@(negedge clk);
+	    		sin = packet[i];
+		end
 endtask
 
 task send_command;
 	input[2:0] in_op;
 	input[3:0] in_crc;
     reg [10:0] packet = 11'b01000000001;
-	reg [3:0] bit_ctr =11;
+	//reg [3:0] bit_ctr =11;
 	
-    @(negedge clk);
-		packet [7:5]<= in_op;
-		packet [4:1]<= in_crc;
-    	repeat(11)begin
-	    	sin = packet[bit_ctr];
-    		if(bit_ctr != 0)
-		    		bit_ctr <= bit_ctr-1;
-	    		else
-		    		bit_ctr = 11;
-    		end
+		packet [7:5]= in_op;
+		packet [4:1]= in_crc;
+    	for(int i=10;i>=0;i--)begin
+	    	@(negedge clk);	
+	    		sin = packet[i];
+	    end
 endtask
 
 //------------------------------------------------------------------------------
 // read data and command tasks
 //------------------------------------------------------------------------------
+ 
+task read_data;
+	input sout;
+	output[7:0] alu_out;
+    reg [10:0] incoming_packet = 11'b00000000000;
+	//reg [4:0] ctr =11;
+	
+	if(sout !=1 ) begin
+    	@(negedge clk);
+	    	for(int i=10;i>=0;i--)begin
+		    	incoming_packet[i] = sout;
+	    	end
+	end
+	    	alu_out = incoming_packet[8:1];
+endtask
 
-//task read_data;
-//	output[7:0] out_data;
-//    reg [10:0] packet = 11'b00000000001;
-//	reg [4:0] bit_ctr =11;
-//	
-//    @(negedge clk);
-//	    	packet[8:1]<= in_data[7:0];
-//	    	repeat(11)
-//		    	sin <= packet[bit_ctr];
-//	    		$display("%0b",sin);
-//	    		if(bit_ctr != 0)
-//		    		bit_ctr <= bit_ctr-1;
-//	    		else
-//		    		bit_ctr = 11;
-//	    	
-//endtask
-//
-//task read_command;
-//	input[2:0] in_op;
-//	input[3:0] in_crc;
-//    reg [10:0] packet = 11'b01000000001;
-//	reg [3:0] bit_ctr =11;
-//	
-//    @(negedge clk);
-//		packet [7:5]<= in_op;
-//		packet [4:1]<= in_crc;
-//    	repeat(11)
-//	    	sin <= packet[bit_ctr];
-//    		if(bit_ctr != 0)
-//		    		bit_ctr <= bit_ctr-1;
-//	    		else
-//		    		bit_ctr = 11;
-//endtask
+task read_command;
+	input sout;
+	output[7:0] alu_out;
+    reg [10:0] incoming_packet = 11'b01000000000;
+	//reg [4:0] ctr =11;
+	
+	if(sout !=1 ) begin
+    	@(negedge clk);
+	    	for(int i=10;i>=0;i--)begin
+		    	incoming_packet[i] = sout;
+	    	end
+	end
+	    	alu_out[8] = 1'b0;
+			alu_out[7:3] = incoming_packet[8:4];
+			alu_out[2:0] = incoming_packet[3:1];
+endtask
 
 
 //------------------------------------------------------------------------------
@@ -264,28 +219,54 @@ endfunction
 //------------------------------------------------------------------------------
 // calculate CRC
 //-----------------------------------------------
-   function [3:0] get_crc;
-
+task get_crc;
+ //
     input [31:0] B;
     input [31:0] A;
-	input [2:0] operation;
+	input [2:0] op;
+	output [3:0] crc; 
     reg [67:0] d;
     reg [3:0] c;
     reg [3:0] newcrc;
   begin
     d[67:36] = B;
 	d[35:4] = A;
-	d[3] = 1'b0;
-	d[2:0] = operation;
+	d[3] = 1'b1;
+	d[2:0] = op;
     c = 4'b0000;
 
     newcrc[0] = d[66] ^ d[64] ^ d[63] ^ d[60] ^ d[56] ^ d[55] ^ d[54] ^ d[53] ^ d[51] ^ d[49] ^ d[48] ^ d[45] ^ d[41] ^ d[40] ^ d[39] ^ d[38] ^ d[36] ^ d[34] ^ d[33] ^ d[30] ^ d[26] ^ d[25] ^ d[24] ^ d[23] ^ d[21] ^ d[19] ^ d[18] ^ d[15] ^ d[11] ^ d[10] ^ d[9] ^ d[8] ^ d[6] ^ d[4] ^ d[3] ^ d[0] ^ c[0] ^ c[2];
     newcrc[1] = d[67] ^ d[66] ^ d[65] ^ d[63] ^ d[61] ^ d[60] ^ d[57] ^ d[53] ^ d[52] ^ d[51] ^ d[50] ^ d[48] ^ d[46] ^ d[45] ^ d[42] ^ d[38] ^ d[37] ^ d[36] ^ d[35] ^ d[33] ^ d[31] ^ d[30] ^ d[27] ^ d[23] ^ d[22] ^ d[21] ^ d[20] ^ d[18] ^ d[16] ^ d[15] ^ d[12] ^ d[8] ^ d[7] ^ d[6] ^ d[5] ^ d[3] ^ d[1] ^ d[0] ^ c[1] ^ c[2] ^ c[3];
     newcrc[2] = d[67] ^ d[66] ^ d[64] ^ d[62] ^ d[61] ^ d[58] ^ d[54] ^ d[53] ^ d[52] ^ d[51] ^ d[49] ^ d[47] ^ d[46] ^ d[43] ^ d[39] ^ d[38] ^ d[37] ^ d[36] ^ d[34] ^ d[32] ^ d[31] ^ d[28] ^ d[24] ^ d[23] ^ d[22] ^ d[21] ^ d[19] ^ d[17] ^ d[16] ^ d[13] ^ d[9] ^ d[8] ^ d[7] ^ d[6] ^ d[4] ^ d[2] ^ d[1] ^ c[0] ^ c[2] ^ c[3];
     newcrc[3] = d[67] ^ d[65] ^ d[63] ^ d[62] ^ d[59] ^ d[55] ^ d[54] ^ d[53] ^ d[52] ^ d[50] ^ d[48] ^ d[47] ^ d[44] ^ d[40] ^ d[39] ^ d[38] ^ d[37] ^ d[35] ^ d[33] ^ d[32] ^ d[29] ^ d[25] ^ d[24] ^ d[23] ^ d[22] ^ d[20] ^ d[18] ^ d[17] ^ d[14] ^ d[10] ^ d[9] ^ d[8] ^ d[7] ^ d[5] ^ d[3] ^ d[2] ^ c[1] ^ c[3];
-    get_crc = newcrc;
+    crc = newcrc;
   end
-  endfunction
+  endtask
 
+//task get_crc;
+//	input [31:0] A;
+//	input [31:0] B;
+//	input [2:0] op;
+//	output [3:0] crc;
+//	
+//	bit tmp;
+//	bit [67:0] in_data;
+//	tmp = 1'b0;
+//	crc = 4'b0000;
+//	in_data[67:36] = B;
+//	in_data[35:4] = A;
+//	in_data[3] = 1'b1;
+//	in_data[2:0] = op;
+//	for(int i = 67; i >=0; i-- )begin
+//		tmp = in_data[i] ^ crc[3];
+//		crc[3]= crc[2];
+//		crc[2]=crc[1];
+//		crc[1]=tmp^ crc[0];
+//		crc[0]=tmp;
+//		
+//	end
+//	
+//	
+//endtask 
 
 endmodule
