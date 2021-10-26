@@ -71,21 +71,22 @@ endfunction : get_data
 // Tester main
 
 bit [31:0] A,B,C; 
-bit [89:0] result;
-bit [3:0] crc;
+bit [89:0] buffer;
+bit [3:0] crc, err_flags;
+bit [2:0] crc_out, crc2;
+bit [54:0] out;
 
 operation_t operation;
 
 initial begin : tester
     reset_alu();
-    repeat (1) begin : tester_main
+    repeat (5) begin : tester_main
         @(negedge clk);
 	    
         operation = get_op();
         A      = get_data();
         B      = get_data();
-        //A      = 32'h0000;
-        //B      = 32'h0000;
+      
 	    get_crc(B,A,operation,crc);
 	    send_data(B[31:24]);
 	    send_data(B[23:16]);
@@ -96,17 +97,34 @@ initial begin : tester
 	    send_data(A[15:8]);
 	    send_data(A[7:0]);
 	    send_command(operation,crc);
-	    read_data(sout,C[31:24]);
-        read_data(sout,C[23:16]);
-	    read_data(sout,C[15:8]);
-	    read_data(sout,C[7:0]);
-	    read_command(sout,C[7:0]);
-	   
+	    read_data(out);
+        process_data(out[54:44],C[31:24]);
+        process_data(out[43:33],C[23:16]);
+	    process_data(out[32:22],C[15:8]);
+	    process_data(out[21:11],C[7:0]);
+	    process_command(out[10:0],err_flags,crc_out);
+	    get_crc_out(C,err_flags,crc2);
+	    
+	    
 	    for(int i=0;i<90;i++) begin
 		    @(negedge clk);
-		    result[i] = sin;
-			$display("%0d",i);
-		end
+		    buffer[i] = sin;
+	    end
+	    
+	    begin
+            automatic bit [31:0] expected = get_expected(A, B, operation);
+            assert(C === expected) begin
+                `ifdef DEBUG
+                $display("Test passed for A=%0d B=%0d op_set=%0d", A, B, operation);
+                `endif
+                test_result = "PASSED";
+            end
+            else begin
+                $display("Test FAILED for A=%0d B=%0d op_set=%0d", A, B, operation);
+                $display("Expected: %d  received: %d", expected, C);
+                test_result = "FAILED";
+            end;
+        end
     end
     
     $finish;
@@ -143,7 +161,6 @@ task send_command;
 	input[2:0] in_op;
 	input[3:0] in_crc;
     reg [10:0] packet = 11'b01000000001;
-	//reg [3:0] bit_ctr =11;
 	
 		packet [7:5]= in_op;
 		packet [4:1]= in_crc;
@@ -158,38 +175,35 @@ endtask
 //------------------------------------------------------------------------------
  
 task read_data;
-	input sout;
-	output[7:0] alu_out;
-    reg [10:0] incoming_packet = 11'b00000000000;
-	//reg [4:0] ctr =11;
+	output[54:0] alu_out;
 	
-	if(sout !=1 ) begin
-    	@(negedge clk);
-	    	for(int i=10;i>=0;i--)begin
-		    	incoming_packet[i] = sout;
-	    	end
-	end
-	    	alu_out = incoming_packet[8:1];
+    @(negedge sout);
+		for(int i=54;i>=0;i--)begin
+			@(negedge clk);
+			alu_out[i] = sout;
+		end
 endtask
 
-task read_command;
-	input sout;
+task process_data;
+	input [10:0] packet;
 	output[7:0] alu_out;
-    reg [10:0] incoming_packet = 11'b01000000000;
-	//reg [4:0] ctr =11;
+
+	@(negedge clk);
+		alu_out[7:0] = packet[8:1];
 	
-	if(sout !=1 ) begin
-    	@(negedge clk);
-	    	for(int i=10;i>=0;i--)begin
-		    	incoming_packet[i] = sout;
-	    	end
-	end
-	    	alu_out[8] = 1'b0;
-			alu_out[7:3] = incoming_packet[8:4];
-			alu_out[2:0] = incoming_packet[3:1];
 endtask
 
 
+task process_command;
+	input [10:0] packet;
+	output[3:0] flags_out;
+	output[2:0] crc_out;
+	
+	@(negedge clk)begin
+		flags_out = packet[7:4];
+		crc_out	= packet[3:1];
+	end
+endtask
 //------------------------------------------------------------------------------
 // calculate expected result
 //------------------------------------------------------------------------------
@@ -206,7 +220,7 @@ function logic [31:0] get_expected(
         and_op : ret = A & B;
         add_op : ret = A + B;
         or_op : ret = A | B;
-        sub_op : ret = A - B;
+        sub_op : ret = B - A;
         default: begin
             $display("%0t INTERNAL ERROR. get_expected: unexpected case argument: %s", $time, op_set);
             test_result = "FAILED";
@@ -241,32 +255,30 @@ task get_crc;
     newcrc[3] = d[67] ^ d[65] ^ d[63] ^ d[62] ^ d[59] ^ d[55] ^ d[54] ^ d[53] ^ d[52] ^ d[50] ^ d[48] ^ d[47] ^ d[44] ^ d[40] ^ d[39] ^ d[38] ^ d[37] ^ d[35] ^ d[33] ^ d[32] ^ d[29] ^ d[25] ^ d[24] ^ d[23] ^ d[22] ^ d[20] ^ d[18] ^ d[17] ^ d[14] ^ d[10] ^ d[9] ^ d[8] ^ d[7] ^ d[5] ^ d[3] ^ d[2] ^ c[1] ^ c[3];
     crc = newcrc;
   end
-  endtask
+endtask
+//
 
-//task get_crc;
-//	input [31:0] A;
-//	input [31:0] B;
-//	input [2:0] op;
-//	output [3:0] crc;
+
+task get_crc_out;
+	input [31:0] data;
+	input [3:0] flags;
+    output [2:0] crc;
+    reg [36:0] d;
+    reg [2:0] c;
+    reg [2:0] newcrc;
+  begin
+    d [36:5]= data;
+    d [4]= 1'b0;
+    d [3:0]= flags;
+    c = 3'b000;
+
+    newcrc[0] = d[35] ^ d[32] ^ d[31] ^ d[30] ^ d[28] ^ d[25] ^ d[24] ^ d[23] ^ d[21] ^ d[18] ^ d[17] ^ d[16] ^ d[14] ^ d[11] ^ d[10] ^ d[9] ^ d[7] ^ d[4] ^ d[3] ^ d[2] ^ d[0] ^ c[1];
+    newcrc[1] = d[36] ^ d[35] ^ d[33] ^ d[30] ^ d[29] ^ d[28] ^ d[26] ^ d[23] ^ d[22] ^ d[21] ^ d[19] ^ d[16] ^ d[15] ^ d[14] ^ d[12] ^ d[9] ^ d[8] ^ d[7] ^ d[5] ^ d[2] ^ d[1] ^ d[0] ^ c[1] ^ c[2];
+    newcrc[2] = d[36] ^ d[34] ^ d[31] ^ d[30] ^ d[29] ^ d[27] ^ d[24] ^ d[23] ^ d[22] ^ d[20] ^ d[17] ^ d[16] ^ d[15] ^ d[13] ^ d[10] ^ d[9] ^ d[8] ^ d[6] ^ d[3] ^ d[2] ^ d[1] ^ c[0] ^ c[2];
+    crc = newcrc;
+  end
+	  
 //	
-//	bit tmp;
-//	bit [67:0] in_data;
-//	tmp = 1'b0;
-//	crc = 4'b0000;
-//	in_data[67:36] = B;
-//	in_data[35:4] = A;
-//	in_data[3] = 1'b1;
-//	in_data[2:0] = op;
-//	for(int i = 67; i >=0; i-- )begin
-//		tmp = in_data[i] ^ crc[3];
-//		crc[3]= crc[2];
-//		crc[2]=crc[1];
-//		crc[1]=tmp^ crc[0];
-//		crc[0]=tmp;
-//		
-//	end
-//	
-//	
-//endtask 
+endtask 
 
 endmodule
