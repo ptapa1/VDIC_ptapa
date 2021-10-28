@@ -4,7 +4,9 @@ module top;
 //------------------------------------------------------------------------------
 // type and variable definitions
 //------------------------------------------------------------------------------
-
+typedef enum bit[5:0] {err_data = 6'b100100,
+    err_crc                    = 6'b010010,
+    err_op                   = 6'b001001} error_flags;
 
 typedef enum bit[2:0] {and_op = 3'b000,
     or_op                    = 3'b001,
@@ -14,9 +16,6 @@ bit         	sin=1;
 bit         		sout;
 bit                clk;
 bit                rst_n;
-//operation_t        op_set;
-
-//assign op = sin;
 
 string             test_result = "PASSED";
 
@@ -77,221 +76,227 @@ bit [3:0] crc, flags;
 bit [2:0] crc_out, crc_expected;
 bit [54:0] out;
 bit [31:0] expected;
+error_flags error_flag;
 
-
-operation_t operation;
+operation_t operation= add_op;
 
 initial begin : tester
     reset_alu();
 	
-	//random data
-    repeat (50) begin : tester_main
-        @(negedge clk);
-        operation = get_op();
-        A      = get_data();
-        B      = get_data();
-	    get_crc(B,A,operation,crc);
-	    send_data(B[31:24]);
-	    send_data(B[23:16]);
-	    send_data(B[15:8]);
-	    send_data(B[7:0]);
-	    send_data(A[31:24]);
-	    send_data(A[23:16]);
-	    send_data(A[15:8]);
-	    send_data(A[7:0]);
-	    send_command(operation,crc);
-	    read_data(out);
-        process_data(out[54:44],C[31:24]);
-        process_data(out[43:33],C[23:16]);
-	    process_data(out[32:22],C[15:8]);
-	    process_data(out[21:11],C[7:0]);
-	    process_command(out[10:0],flags,crc_out);
-	    get_crc_out(C,flags,crc_expected);
-	    
-	    
-	    
-	    begin
-            expected = get_expected(A, B, operation);
-            if(C === expected) begin
-                `ifdef DEBUG
-                $display("Test passed for A=%0b B=%0b op_set=%s", A, B, operation.name);
-                $display("Asserted flags: %4b", flags);
-                `endif
-                test_result = "PASSED";
-            end
-            //else if()
-            else begin
-                $display("Test FAILED for A=%0b B=%0b op_set=%s", A, B, operation.name);
-                $display("Expected: %b  received: %b", expected, C);
-                test_result = "FAILED";
-            end;
+    for (int i=0;i<50;i++) begin : tester_main
+        if(i>=0 && i<20) begin //correct data
+	        @(negedge clk);
+	        operation = get_op();
+	        A      = get_data();
+	        B      = get_data();
+		    get_crc(B,A,operation,crc);
+		    send_data(B[31:24]);
+		    send_data(B[23:16]);
+		    send_data(B[15:8]);
+		    send_data(B[7:0]);
+		    send_data(A[31:24]);
+		    send_data(A[23:16]);
+		    send_data(A[15:8]);
+		    send_data(A[7:0]);
+		    send_command(operation,crc);
+		    read_data(out);
+		    if(out[54:53] == 2'b00)begin
+			    process_data(out[54:44],C[31:24]);
+			    process_data(out[43:33],C[23:16]);
+			    process_data(out[32:22],C[15:8]);
+			    process_data(out[21:11],C[7:0]);
+			    process_command(out[10:0],flags,crc_out);
+			    get_crc_out(C,flags,crc_expected);
+			    
+			    begin
+		            expected = get_expected(A, B, operation);
+		            if(C === expected) begin
+		                $display("Test passed for A=%0b B=%0b op_set=%s", A, B, operation.name);
+		                $display("Asserted flags: %4b", flags);
+		                test_result = "PASSED";
+		            end
+		            else begin
+		                $display("Test FAILED for A=%0b B=%0b op_set=%s", A, B, operation.name);
+		                $display("Expected: %b  received: %b", expected, C);
+		                test_result = "FAILED";
+		            end;
+		        end
+			    
+		    end
+		    else if(out[54:53] == 2'b01)begin
+			    process_error(out[54:44],error_flag);
+			    $display("ERROR PACKET %s(%6b) received  for A=%0b B=%0b op_set=%s\n", error_flag.name,error_flag, A, B, operation.name);
+		    end
+		    else begin
+			    $display("INTERNAL ERROR - incorrect packet returned\n");
+		    end
         end
-    end
-    
-    //error generation
-    //err_data - too many frames
-    @(negedge clk);	    
-        operation = get_op();
-        A      = get_data();
-        B      = get_data();
-	    get_crc(B,A,operation,crc);
-	    send_data(B[31:24]);
-	    send_data(B[23:16]);
-    	send_data(B[23:16]); //additional frame
-	    send_data(B[15:8]);
-	    send_data(B[7:0]);
-	    send_data(A[31:24]);
-	    send_data(A[23:16]);
-	    send_data(A[15:8]);
-	    send_data(A[7:0]);
-	    send_command(operation,crc);
-	    read_data(out);
-        process_data(out[54:44],C[31:24]);
-        process_data(out[43:33],C[23:16]);
-	    process_data(out[32:22],C[15:8]);
-	    process_data(out[21:11],C[7:0]);
-	    process_command(out[10:0],flags,crc_out);
-	    get_crc_out(C,flags,crc_expected);
-	    
-	    
-	    begin
-            expected = get_expected(A, B, operation);
-            if(C === expected) begin
-                `ifdef DEBUG
-                $display("Test passed for A=%0b B=%0b op_set=%s", A, B, operation.name);
-                $display("Asserted flags: %4b", flags);
-                `endif
-                test_result = "PASSED";
-            end
-            //else if()
-            else begin
-                $display("Test FAILED for A=%0b B=%0b op_set=%s", A, B, operation.name);
-                $display("Expected: %b  received: %b", expected, C);
-                test_result = "FAILED";
-            end;
+        else if(i>=20 && i<30) begin //incorrect crc
+	        @(negedge clk);
+	        operation = get_op();
+	        A      = get_data();
+	        B      = get_data();
+		    crc = 4'($random);
+		    send_data(B[31:24]);
+		    send_data(B[23:16]);
+		    send_data(B[15:8]);
+		    send_data(B[7:0]);
+		    send_data(A[31:24]);
+		    send_data(A[23:16]);
+		    send_data(A[15:8]);
+		    send_data(A[7:0]);
+		    send_command(operation,crc);
+		    read_data(out);
+		    if(out[54:53] == 2'b00)begin
+			    process_data(out[54:44],C[31:24]);
+			    process_data(out[43:33],C[23:16]);
+			    process_data(out[32:22],C[15:8]);
+			    process_data(out[21:11],C[7:0]);
+			    process_command(out[10:0],flags,crc_out);
+			    get_crc_out(C,flags,crc_expected);
+			     
+			     begin
+		            expected = get_expected(A, B, operation);
+		            if(C === expected) begin
+		                $display("Test passed for A=%0b B=%0b op_set=%s", A, B, operation.name);
+		                $display("Asserted flags: %4b\n", flags);
+		                test_result = "PASSED";
+		            end
+		            else begin
+		                $display("Test FAILED for A=%0b B=%0b op_set=%s", A, B, operation.name);
+		                $display("Expected: %b  received: %b\n", expected, C);
+		                test_result = "FAILED";
+		            end;
+		        end
+			    
+		    end
+		    else if(out[54:53] == 2'b01)begin
+			    process_error(out[54:44],error_flag);
+			    $display("ERROR PACKET %s(%6b) received  for A=%0b B=%0b op_set=%s\n", error_flag.name,error_flag, A, B, operation.name);
+		    end
+		    else begin
+			    $display("INTERNAL ERROR - incorrect packet returned\n");
+			    
+		    end
         end
-    
-    //err_data - too few frames
-    @(negedge clk);	    
-        operation = get_op();
-        A      = get_data();
-        B      = get_data();
-	    get_crc(B,A,operation,crc);
-	    send_data(B[31:24]);
-	    //send_data(B[23:16]); deleted frame
-	    send_data(B[15:8]);
-	    send_data(B[7:0]);
-	    send_data(A[31:24]);
-	    send_data(A[23:16]);
-	    //send_data(A[15:8]); deleted frame
-	    send_data(A[7:0]);
-	    send_command(operation,crc);
-	    read_data(out);
-        process_data(out[54:44],C[31:24]);
-        process_data(out[43:33],C[23:16]);
-	    process_data(out[32:22],C[15:8]);
-	    process_data(out[21:11],C[7:0]);
-	    process_command(out[10:0],flags,crc_out);
-	    get_crc_out(C,flags,crc_expected);
-	    
-	    begin
-            expected = get_expected(A, B, operation);
-            if(C === expected) begin
-                `ifdef DEBUG
-                $display("Test passed for A=%0b B=%0b op_set=%s", A, B, operation.name);
-                $display("Asserted flags: %4b", flags);
-                `endif
-                test_result = "PASSED";
-            end
-            //else if()
-            else begin
-                $display("Test FAILED for A=%0b B=%0b op_set=%s", A, B, operation.name);
-                $display("Expected: %b  received: %b", expected, C);
-                test_result = "FAILED";
-            end;
+        else if(i>=30 && i<40) begin //incorrect op
+	        @(negedge clk);
+	        operation = operation + 1'b1;
+	        A      = get_data();
+	        B      = get_data();
+		    get_crc(B,A,operation,crc);
+		    send_data(B[31:24]);
+		    send_data(B[23:16]);
+		    send_data(B[15:8]);
+		    send_data(B[7:0]);
+		    send_data(A[31:24]);
+		    send_data(A[23:16]);
+		    send_data(A[15:8]);
+		    send_data(A[7:0]);
+		    send_command(operation,crc);
+		    read_data(out);
+		    if(out[54:53] == 2'b00)begin
+			    process_data(out[54:44],C[31:24]);
+			    process_data(out[43:33],C[23:16]);
+			    process_data(out[32:22],C[15:8]);
+			    process_data(out[21:11],C[7:0]);
+			    process_command(out[10:0],flags,crc_out);
+			    get_crc_out(C,flags,crc_expected);
+			     
+			     begin
+		            expected = get_expected(A, B, operation);
+		            if(C === expected) begin
+		                $display("Test passed for A=%0b B=%0b op_set=%0s(%3b)", A, B, operation.name, operation);
+		                $display("Asserted flags: %4b\n", flags);
+		                test_result = "PASSED";
+		            end
+		            else begin
+		                $display("Test FAILED for A=%0b B=%0b op_set=%0s(%3b)", A, B, operation.name, operation);
+		                $display("Expected: %b  received: %b\n", expected, C);
+		                test_result = "FAILED";
+		            end;
+		        end
+			    
+		    end
+		    else if(out[54:53] == 2'b01)begin
+			    process_error(out[54:44],error_flag);
+			    $display("ERROR PACKET %s(%6b) received  for A=%0b B=%0b op_set=%0s(%3b)\n", error_flag.name,error_flag, A, B, operation.name, operation);
+		    end
+		    else begin
+			    $display("INTERNAL ERROR - incorrect packet returned\n");
+			    
+		    end
+        end
+        else if(i>=40 && i<50) begin //incorrect data format
+	        @(negedge clk);
+	        operation = get_op();
+	        A      = get_data();
+	        B      = get_data();
+		    get_crc(B,A,operation,crc);
+		    send_data(B[31:24]);
+		    send_data(B[23:16]);
+		    send_data(B[15:8]);
+		    send_data(B[7:0]);
+		    send_data(A[31:24]);
+		    send_data(A[23:16]);
+		    send_data(A[7:0]);
+		    send_command(operation,crc);
+		    read_data(out);
+		    if(out[54:53] == 2'b00)begin
+			    process_data(out[54:44],C[31:24]);
+			    process_data(out[43:33],C[23:16]);
+			    process_data(out[32:22],C[15:8]);
+			    process_data(out[21:11],C[7:0]);
+			    process_command(out[10:0],flags,crc_out);
+			    get_crc_out(C,flags,crc_expected);
+			     
+			     begin
+		            expected = get_expected(A, B, operation);
+		            if(C === expected) begin
+		                $display("Test passed for A=%0b B=%0b op_set=%s", A, B, operation.name);
+		                $display("Asserted flags: %4b\n", flags);
+		                test_result = "PASSED";
+		            end
+		            else begin
+		                $display("Test FAILED for A=%0b B=%0b op_set=%s", A, B, operation.name);
+		                $display("Expected: %b  received: %b\n", expected, C);
+		                test_result = "FAILED";
+		            end;
+		        end
+			    
+		    end
+		    else if(out[54:53] == 2'b01)begin
+			    process_error(out[54:44],error_flag);
+			    $display("ERROR PACKET %s(%6b) received  for A=%0b B=%0b op_set=%s\n", error_flag.name,error_flag, A, B, operation.name);
+		    end
+		    else begin
+			    $display("INTERNAL ERROR - incorrect packet returned\n");
+			    
+		    end
+        end
+        
+        else begin
+	        $display("whatever %d", i);
 	    end
 	    
-	//err_crc 
-    @(negedge clk);	    
-        operation = get_op();
-        A      = get_data();
-        B      = get_data();
-	    get_crc(B,A,operation,crc);
-	    crc = crc + 3'($random); //incorrect crc
-	    send_data(B[31:24]);
-	    send_data(B[23:16]); 
-	    send_data(B[15:8]);
-	    send_data(B[7:0]);
-	    send_data(A[31:24]);
-	    send_data(A[23:16]);
-	    send_data(A[15:8]);
-	    send_data(A[7:0]);
-	    send_command(operation,crc);
-	    read_data(out);
-        process_data(out[54:44],C[31:24]);
-        process_data(out[43:33],C[23:16]);
-	    process_data(out[32:22],C[15:8]);
-	    process_data(out[21:11],C[7:0]);
-	    process_command(out[10:0],flags,crc_out);
-	    get_crc_out(C,flags,crc_expected);
-	    
-	    begin
-            expected = get_expected(A, B, operation);
-            if(C === expected) begin
-                `ifdef DEBUG
-                $display("Test passed for A=%0b B=%0b op_set=%s", A, B, operation.name);
-                $display("Asserted flags: %4b", flags);
-                `endif
-                test_result = "PASSED";
-            end
-            //else if()
-            else begin
-                $display("Test FAILED for A=%0b B=%0b op_set=%s", A, B, operation.name);
-                $display("Expected: %b  received: %b", expected, C);
-                test_result = "FAILED";
-            end;
-        end
-	    
-	//err_op 
-    @(negedge clk);	    
-        operation = 3'b010;
-        A      = get_data();
-        B      = get_data();
-	    get_crc(B,A,operation,crc);
-	    crc = crc + 3'($random); //incorrect crc
-	    send_data(B[31:24]);
-	    send_data(B[23:16]); 
-	    send_data(B[15:8]);
-	    send_data(B[7:0]);
-	    send_data(A[31:24]);
-	    send_data(A[23:16]);
-	    send_data(A[15:8]);
-	    send_data(A[7:0]);
-	    send_command(operation,crc);
-	    read_data(out);
-        process_data(out[54:44],C[31:24]);
-        process_data(out[43:33],C[23:16]);
-	    process_data(out[32:22],C[15:8]);
-	    process_data(out[21:11],C[7:0]);
-	    process_command(out[10:0],flags,crc_out);
-	    get_crc_out(C,flags,crc_expected);
-	    
-	    begin
-            expected = get_expected(A, B, operation);
-            if(C === expected) begin
-                `ifdef DEBUG
-                $display("Test passed for A=%0b B=%0b op_set=%s", A, B, operation.name);
-                $display("Asserted flags: %4b", flags);
-                `endif
-                test_result = "PASSED";
-            end
-            //else if()
-            else begin
-                $display("Test FAILED for A=%0b B=%0b op_set=%s", A, B, operation.name);
-                $display("Expected: %b  received: %b", expected, C);
-                test_result = "FAILED";
-            end;
-        end 
+	   // begin
+       //     expected = get_expected(A, B, operation);
+       //     if(C === expected) begin
+       //         `ifdef DEBUG
+       //         $display("Test passed for A=%0b B=%0b op_set=%s", A, B, operation.name);
+       //         $display("Asserted flags: %4b", flags);
+       //         `endif
+       //         test_result = "PASSED";
+       //     end
+       //     //else if()
+       //     else begin
+       //         $display("Test FAILED for A=%0b B=%0b op_set=%s", A, B, operation.name);
+       //         $display("Expected: %b  received: %b", expected, C);
+       //         test_result = "FAILED";
+       //     end;
+       // end
+    end
+    
     $finish;
 end : tester
 
@@ -369,6 +374,17 @@ task process_command;
 		crc_out	= packet[3:1];
 	end
 endtask
+
+task process_error;
+	input [10:0] packet;
+	output[5:0] flags_out;
+	//output parity_out;
+	
+	@(negedge clk)begin
+		flags_out = packet[7:2];
+		//parity_out	= packet[1];
+	end
+endtask
 //------------------------------------------------------------------------------
 // calculate expected result
 //------------------------------------------------------------------------------
@@ -378,9 +394,7 @@ function logic [31:0] get_expected(
         operation_t op_set
     );
     bit [31:0] ret;
-    `ifdef DEBUG
-    $display("%0t DEBUG: get_expected(%0d,%0d,%0d)",$time, A, B, op_set);
-    `endif
+    
     case(op_set)
         and_op : ret = A & B;
         add_op : ret = A + B;
