@@ -78,7 +78,7 @@ bit [54:0] out;
 bit [31:0] expected;
 error_flags error_flag;
 
-operation_t operation= add_op;
+operation_t operation;
 
 initial begin : tester
     reset_alu();
@@ -112,12 +112,12 @@ initial begin : tester
 		            expected = get_expected(A, B, operation);
 		            if(C === expected) begin
 		                $display("Test passed for A=%0b B=%0b op_set=%s", A, B, operation.name);
-		                $display("Asserted flags: %4b", flags);
+		                $display("Asserted flags: %4b\n", flags);
 		                test_result = "PASSED";
 		            end
 		            else begin
 		                $display("Test FAILED for A=%0b B=%0b op_set=%s", A, B, operation.name);
-		                $display("Expected: %b  received: %b", expected, C);
+		                $display("Expected: %b  received: %b\n", expected, C);
 		                test_result = "FAILED";
 		            end;
 		        end
@@ -279,22 +279,7 @@ initial begin : tester
 	        $display("whatever %d", i);
 	    end
 	    
-	   // begin
-       //     expected = get_expected(A, B, operation);
-       //     if(C === expected) begin
-       //         `ifdef DEBUG
-       //         $display("Test passed for A=%0b B=%0b op_set=%s", A, B, operation.name);
-       //         $display("Asserted flags: %4b", flags);
-       //         `endif
-       //         test_result = "PASSED";
-       //     end
-       //     //else if()
-       //     else begin
-       //         $display("Test FAILED for A=%0b B=%0b op_set=%s", A, B, operation.name);
-       //         $display("Expected: %b  received: %b", expected, C);
-       //         test_result = "FAILED";
-       //     end;
-       // end
+	   
     end
     
     $finish;
@@ -378,11 +363,9 @@ endtask
 task process_error;
 	input [10:0] packet;
 	output[5:0] flags_out;
-	//output parity_out;
 	
 	@(negedge clk)begin
 		flags_out = packet[7:2];
-		//parity_out	= packet[1];
 	end
 endtask
 //------------------------------------------------------------------------------
@@ -413,7 +396,7 @@ endfunction
 // calculate CRC
 //-----------------------------------------------
 task get_crc;
- //
+ 
     input [31:0] B;
     input [31:0] A;
 	input [2:0] op;
@@ -435,7 +418,6 @@ task get_crc;
     crc = newcrc;
   end
 endtask
-//
 
 
 task get_crc_out;
@@ -457,7 +439,7 @@ task get_crc_out;
     crc = newcrc;
   end
 	  
-//	
+	
 endtask 
 
 endmodule
