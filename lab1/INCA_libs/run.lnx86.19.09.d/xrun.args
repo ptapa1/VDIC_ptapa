@@ -8,8 +8,7 @@ xrun_elaborate.log
 -F
 tb.f
 -v93
--define
-DEBUG
+-q
 +nowarnDSEM2009
 +nowarnDSEMEL
 +nowarnCGDEFN
