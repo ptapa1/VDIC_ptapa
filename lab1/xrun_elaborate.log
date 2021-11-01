@@ -1,4 +1,4 @@
-TOOL:	xrun	19.09-s003: Started on Oct 17, 2021 at 01:13:26 CEST
+TOOL:	xrun	19.09-s003: Started on Oct 28, 2021 at 02:45:46 CEST
 xrun
 	-elaborate
 	-l xrun_elaborate.log
@@ -18,23 +18,40 @@ xrun
 	Elaborating the design hierarchy:
 	Top level design units:
 		top
-	Building instance overlay tables: .................... Done
+	Building instance overlay tables: ....
+			    process_error(out[54:44],error_flag);
+			                                      |
+xmelab: *W,ENUMERR (./alu_tb.sv,127|41): This assignment is a violation of SystemVerilog strong typing rules for enumeration datatypes.
+			    process_error(out[54:44],error_flag);
+			                                      |
+xmelab: *W,ENUMERR (./alu_tb.sv,174|41): This assignment is a violation of SystemVerilog strong typing rules for enumeration datatypes.
+	        operation = operation + 1'b1;
+	                              |
+xmelab: *W,ENUMERR (./alu_tb.sv,184|31): This assignment is a violation of SystemVerilog strong typing rules for enumeration datatypes.
+			    process_error(out[54:44],error_flag);
+			                                      |
+xmelab: *W,ENUMERR (./alu_tb.sv,222|41): This assignment is a violation of SystemVerilog strong typing rules for enumeration datatypes.
+			    process_error(out[54:44],error_flag);
+			                                      |
+xmelab: *W,ENUMERR (./alu_tb.sv,269|41): This assignment is a violation of SystemVerilog strong typing rules for enumeration datatypes.
+................ Done
 	Generating native compiled code:
-			streams:   0, words:     0
-			streams:   0, words:     0
-			streams:   0, words:     0
-		worklib.top:sv <0x5ebf76e6>
-			streams:   8, words: 11951
+			streams:   7, words:  3942
+			streams:   9, words: 25571
+			streams:   7, words:  3261
+		worklib.top:sv <0x5031cd18>
+			streams:  20, words: 59318
 	Building instance specific data structures.
 	Loading native compiled code:     .................... Done
 	Design hierarchy summary:
 		                 Instances  Unique
 		Modules:                 5       5
-		Registers:              60      71
-		Scalar wires:            3       -
+		Registers:             104     110
+		Scalar wires:            8       -
+		Vectored wires:          2       -
 		Always blocks:          12      12
-		Initial blocks:          3       3
-		Cont. assignments:       0       1
+		Initial blocks:          7       7
+		Pseudo assignments:      2       2
 		Simulation timescale:  1ps
 	Writing initial simulation snapshot: worklib.top:sv
-TOOL:	xrun	19.09-s003: Exiting on Oct 17, 2021 at 01:13:27 CEST  (total: 00:00:01)
+TOOL:	xrun	19.09-s003: Exiting on Oct 28, 2021 at 02:45:46 CEST  (total: 00:00:00)

@@ -1,4 +1,4 @@
-TOOL:	xrun	19.09-s003: Started on Oct 16, 2021 at 23:40:47 CEST
+TOOL:	xrun	19.09-s003: Started on Oct 28, 2021 at 01:43:46 CEST
 xrun
 	-F tb.f
 		-F ./dut.f
@@ -17,39 +17,70 @@ xrun
 	-l xrun_gui.log
 	-s
 Recompiling... reason: file './alu_tb.sv' is newer than expected.
-	expected: Sat Oct 16 23:39:00 2021
-	actual:   Sat Oct 16 23:40:32 2021
+	expected: Thu Oct 28 01:33:30 2021
+	actual:   Thu Oct 28 01:43:28 2021
 file: ./alu_tb.sv
-                    automatic bit [31:0] expected = get_expected(A, B, op);
-                                                                        |
-xmvlog: *W,ENUMERR (./alu_tb.sv,107|72): This assignment is a violation of SystemVerilog strong typing rules for enumeration datatypes.
+    reg [10:0] packet = 11'b00000000001;
+                      |
+xmvlog: *W,VARIST (./alu_tb.sv,305|22): Local static variable with initializer requires 'static' keyword.
+    reg [10:0] packet = 11'b01000000001;
+                      |
+xmvlog: *W,VARIST (./alu_tb.sv,317|22): Local static variable with initializer requires 'static' keyword.
+			    process_error(out[54:44],error_flag);
+			                                      |
+xmvlog: *W,ENUMERR (./alu_tb.sv,115|41): This assignment is a violation of SystemVerilog strong typing rules for enumeration datatypes.
+			    process_error(out[54:44],error_flag);
+			                                      |
+xmvlog: *W,ENUMERR (./alu_tb.sv,149|41): This assignment is a violation of SystemVerilog strong typing rules for enumeration datatypes.
+			    process_error(out[54:44],error_flag);
+			                                      |
+xmvlog: *W,ENUMERR (./alu_tb.sv,183|41): This assignment is a violation of SystemVerilog strong typing rules for enumeration datatypes.
+			    process_error(out[54:44],error_flag);
+			                                      |
+xmvlog: *W,ENUMERR (./alu_tb.sv,221|41): This assignment is a violation of SystemVerilog strong typing rules for enumeration datatypes.
+			    process_error(out[54:44],error_flag);
+			                                      |
+xmvlog: *W,ENUMERR (./alu_tb.sv,254|41): This assignment is a violation of SystemVerilog strong typing rules for enumeration datatypes.
 	module worklib.top:sv
-		errors: 0, warnings: 1
+		errors: 0, warnings: 7
 		Caching library 'worklib' ....... Done
 	Elaborating the design hierarchy:
 	Top level design units:
 		top
 	Building instance overlay tables: ....
-                    automatic bit [31:0] expected = get_expected(A, B, op);
-                                                                        |
-xmelab: *W,ENUMERR (./alu_tb.sv,107|72): This assignment is a violation of SystemVerilog strong typing rules for enumeration datatypes.
+			    process_error(out[54:44],error_flag);
+			                                      |
+xmelab: *W,ENUMERR (./alu_tb.sv,115|41): This assignment is a violation of SystemVerilog strong typing rules for enumeration datatypes.
+			    process_error(out[54:44],error_flag);
+			                                      |
+xmelab: *W,ENUMERR (./alu_tb.sv,149|41): This assignment is a violation of SystemVerilog strong typing rules for enumeration datatypes.
+	        operation = 3'($random);
+	                      |
+xmelab: *W,ENUMERR (./alu_tb.sv,159|23): This assignment is a violation of SystemVerilog strong typing rules for enumeration datatypes.
+			    process_error(out[54:44],error_flag);
+			                                      |
+xmelab: *W,ENUMERR (./alu_tb.sv,183|41): This assignment is a violation of SystemVerilog strong typing rules for enumeration datatypes.
+			    process_error(out[54:44],error_flag);
+			                                      |
+xmelab: *W,ENUMERR (./alu_tb.sv,221|41): This assignment is a violation of SystemVerilog strong typing rules for enumeration datatypes.
+			    process_error(out[54:44],error_flag);
+			                                      |
+xmelab: *W,ENUMERR (./alu_tb.sv,254|41): This assignment is a violation of SystemVerilog strong typing rules for enumeration datatypes.
 ................ Done
 	Generating native compiled code:
-		worklib.top:sv <0x3853afa6>
-			streams:   9, words: 14002
+		worklib.top:sv <0x09aaa5fd>
+			streams:  20, words: 80175
 	Building instance specific data structures.
 	Loading native compiled code:     .................... Done
 	Design hierarchy summary:
 		                 Instances  Unique
 		Modules:                 5       5
-		Registers:              72      72
+		Registers:             110     110
 		Scalar wires:            8       -
 		Vectored wires:          2       -
 		Always blocks:          12      12
-		Initial blocks:          3       3
-		Cont. assignments:       0       1
-		Pseudo assignments:      1       1
-		Assertions:              1       1
+		Initial blocks:          6       6
+		Pseudo assignments:      2       2
 		Simulation timescale:  1ps
 	Writing initial simulation snapshot: worklib.top:sv
 xcelium> 
@@ -62,8 +93,66 @@ xcelium> input -quiet .reinvoke.sim
 xcelium> file delete .reinvoke.sim
 xcelium> run
 0 DEBUG: reset_alu
-Simulation complete via $finish(1) at time 4020 NS + 0
-./alu_tb.sv:126     $finish;
-xcelium> ^C
-xcelium> exit
-TOOL:	xrun	19.09-s003: Exiting on Oct 16, 2021 at 23:41:43 CEST  (total: 00:00:56)
+success
+success
+success
+success
+success
+success
+success
+success
+success
+success
+ERROR ERROR err_crc 010010, packet 01101001011
+ERROR ERROR err_crc 010010, packet 01101001011
+ERROR ERROR err_crc 010010, packet 01101001011
+ERROR ERROR err_crc 010010, packet 01101001011
+ERROR ERROR err_crc 010010, packet 01101001011
+ERROR ERROR err_crc 010010, packet 01101001011
+ERROR ERROR err_crc 010010, packet 01101001011
+ERROR ERROR err_crc 010010, packet 01101001011
+ERROR ERROR err_crc 010010, packet 01101001011
+ERROR ERROR err_crc 010010, packet 01101001011
+ERROR ERROR err_op 001001, packet 01100100111
+success
+ERROR ERROR err_op 001001, packet 01100100111
+ERROR ERROR err_op 001001, packet 01100100111
+ERROR ERROR err_op 001001, packet 01100100111
+ERROR ERROR err_op 001001, packet 01100100111
+success
+ERROR ERROR err_op 001001, packet 01100100111
+ERROR ERROR err_op 001001, packet 01100100111
+ERROR ERROR err_op 001001, packet 01100100111
+out = 0111001001111111111111111111111111111111111111111111111, a=01011011011011111011100110110110, b=00000000000000000000000000000000
+ERROR ERROR err_data 100100, packet 01110010011
+out = 0111001001111111111111111111111111111111111111111111111, a=00000000000000000000000000000000, b=00001111111111111111111111111111
+ERROR ERROR err_data 100100, packet 01110010011
+out = 0111001001111111111111111111111111111111111111111111111, a=00001111111111111111111111111111, b=01101100101100001011011111011001
+ERROR ERROR err_data 100100, packet 01110010011
+out = 0111001001111111111111111111111111111111111111111111111, a=01011011000101110010110110110110, b=10100011000001110001101001000110
+ERROR ERROR err_data 100100, packet 01110010011
+out = 0111001001111111111111111111111111111111111111111111111, a=11011010011011101011101010110100, b=00000000000000000000000000000000
+ERROR ERROR err_data 100100, packet 01110010011
+out = 0111001001111111111111111111111111111111111111111111111, a=00001111111111111111111111111111, b=10000100011101111110010000001000
+ERROR ERROR err_data 100100, packet 01110010011
+out = 0111001001111111111111111111111111111111111111111111111, a=10001110001101111001000000011100, b=11101101001101000000100011011010
+ERROR ERROR err_data 100100, packet 01110010011
+out = 0111001001111111111111111111111111111111111111111111111, a=00000000000000000000000000000000, b=00001111111111111111111111111111
+ERROR ERROR err_data 100100, packet 01110010011
+out = 0111001001111111111111111111111111111111111111111111111, a=01101010100011100000010111010101, b=11011100111100000000000010111001
+ERROR ERROR err_data 100100, packet 01110010011
+out = 0111001001111111111111111111111111111111111111111111111, a=00000000000000000000000000000000, b=11011011010001100001101010110110
+ERROR ERROR err_data 100100, packet 01110010011
+ERROR ERROR err_data 100100, packet 01110010011
+ERROR ERROR err_data 100100, packet 01110010011
+ERROR ERROR err_data 100100, packet 01110010011
+ERROR ERROR err_data 100100, packet 01110010011
+ERROR ERROR err_data 100100, packet 01110010011
+ERROR ERROR err_data 100100, packet 01110010011
+ERROR ERROR err_data 100100, packet 01110010011
+ERROR ERROR err_data 100100, packet 01110010011
+ERROR ERROR err_data 100100, packet 01110010011
+ERROR ERROR err_data 100100, packet 01110010011
+Simulation complete via $finish(1) at time 166260 NS + 0
+./alu_tb.sv:284     $finish;
+xcelium> 
