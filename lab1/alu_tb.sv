@@ -85,16 +85,22 @@ module top;
 
 		for (int i=0;i<100;i++) begin : tester_main
 			if(i>=0 && i<40) begin //correct data
+				`ifdef DEBUG
 				$display("Test for correct data sent");
+				`endif
 				@(negedge clk);
 				operation = get_op();
 				A      = get_data();
 				B      = get_data();
 				if(A==32'hFFFFFFFF && B ==32'hFFFFFFFF)begin
+					`ifdef DEBUG
 					$display("!!Test for A=%32b, B=%32b!!", A, B);
+					`endif
 				end
 				else if(A==32'h00000000 && B ==32'h00000000)begin
+					`ifdef DEBUG
 					$display("!!Test for A=%32b, B=%32b!!", A, B);
+					`endif
 				end
 
 				get_crc(B,A,operation,crc);
@@ -119,34 +125,42 @@ module top;
 					begin
 						expected = get_expected(A, B, operation);
 						if(C === expected) begin
+							`ifdef DEBUG
 							$display("Test PASSED for A=%0b B=%0b op_set=%s", A, B, operation.name);
 							$display("Asserted flags: %4b", flags);
 							test_result = "PASSED";
 							$display("Test %s\n", test_result);
+							`endif
 						end
 						else begin
+							`ifdef DEBUG
 							$display("Test FAILED for A=%0b B=%0b op_set=%s", A, B, operation.name);
 							$display("Expected: %b  received: %b", expected, C);
 							test_result = "FAILED";
 							all_tests_result = "FAILED";
 							$display("Test %s\n", test_result);
+							`endif
 						end;
 					end
 
 				end
 				else if(out[54:53] == 2'b01)begin
+					`ifdef DEBUG
 					process_error(out[54:44],error_flag);
 					$display("ERROR PACKET %s(%6b) received  for A=%0b B=%0b op_set=%s", error_flag.name,error_flag, A, B, operation.name);
 					test_result = "FAILED";
 					all_tests_result = "FAILED";
 					$display("Test %s\n", test_result);
+					`endif
 				end
 				else begin
 					$display("INTERNAL ERROR - incorrect packet returned\n");
 				end
 			end
 			else if(i>=40 && i<60) begin //incorrect crc
+				`ifdef DEBUG
 				$display("Test for incorrect input CRC");
+				`endif
 				@(negedge clk);
 				operation = get_op();
 				A      = get_data();
@@ -173,27 +187,33 @@ module top;
 					begin
 						expected = get_expected(A, B, operation);
 						if(C === expected) begin
+							`ifdef DEBUG
 							$display("Test passed for A=%0b B=%0b op_set=%s", A, B, operation.name);
 							$display("Asserted flags: %4b", flags);
 							test_result = "FAILED";
 							all_tests_result = "FAILED";
 							$display("Test %s\n", test_result);
+							`endif
 						end
 						else begin
+							`ifdef DEBUG
 							$display("Test FAILED for A=%0b B=%0b op_set=%s", A, B, operation.name);
 							$display("Expected: %b  received: %b", expected, C);
 							test_result = "FAILED";
 							all_tests_result = "FAILED";
 							$display("Test %s\n", test_result);
+							`endif
 						end;
 					end
 
 				end
 				else if(out[54:53] == 2'b01)begin
 					process_error(out[54:44],error_flag);
+					`ifdef DEBUG
 					$display("ERROR PACKET %s(%6b) received  for A=%0b B=%0b op_set=%s", error_flag.name,error_flag, A, B, operation.name);
 					test_result = "PASSED";
 					$display("Test %s\n", test_result);
+					`endif
 				end
 				else begin
 					$display("INTERNAL ERROR - incorrect packet returned\n");
@@ -208,7 +228,9 @@ module top;
 				//$display("Correct operation code\n\n");
 				end
 				else begin
+					`ifdef DEBUG
 					$display("Test for incorrect operation code");
+					`endif
 					A      = get_data();
 					B      = get_data();
 					get_crc(B,A,operation,crc);
@@ -233,27 +255,33 @@ module top;
 						begin
 							expected = get_expected(A, B, operation);
 							if(C === expected) begin
+								`ifdef DEBUG
 								$display("Test passed for A=%0b B=%0b op_set=%0s(%3b)", A, B, operation.name, operation);
 								$display("Asserted flags: %4b", flags);
 								test_result = "FAILED";
 								all_tests_result = "FAILED";
 								$display("Test %s\n", test_result);
+								`endif
 							end
 							else begin
+								`ifdef DEBUG
 								$display("Test FAILED for A=%0b B=%0b op_set=%0s(%3b)", A, B, operation.name, operation);
 								$display("Expected: %b  received: %b", expected, C);
 								test_result = "FAILED";
 								all_tests_result = "FAILED";
 								$display("Test %s\n", test_result);
+								`endif
 							end;
 						end
 
 					end
 					else if(out[54:53] == 2'b01)begin
 						process_error(out[54:44],error_flag);
+						`ifdef DEBUG
 						$display("ERROR PACKET %s(%6b) received  for A=%0b B=%0b op_set=%0s(%3b)", error_flag.name,error_flag, A, B, operation.name, operation);
 						test_result = "PASSED";
 						$display("Test %s\n", test_result);
+						`endif
 					end
 					else begin
 						$display("INTERNAL ERROR - incorrect packet returned\n");
@@ -262,7 +290,9 @@ module top;
 				end
 			end
 			else if(i>=80 && i<100) begin //incorrect data format
+				`ifdef DEBUG
 				$display("Test for incorrect input data");
+				`endif
 				@(negedge clk);
 				operation = get_op();
 				A      = get_data();
@@ -288,27 +318,33 @@ module top;
 					begin
 						expected = get_expected(A, B, operation);
 						if(C === expected) begin
+							`ifdef DEBUG
 							$display("Test passed for A=%0b B=%0b op_set=%s", A, B, operation.name);
 							$display("Asserted flags: %4b", flags);
 							test_result = "FAILED";
 							all_tests_result = "FAILED";
 							$display("Test %s\n", test_result);
+							`endif
 						end
 						else begin
+							`ifdef DEBUG
 							$display("Test FAILED for A=%0b B=%0b op_set=%s", A, B, operation.name);
 							$display("Expected: %b  received: %b", expected, C);
 							test_result = "FAILED";
 							all_tests_result = "FAILED";
 							$display("Test %s\n", test_result);
+							`endif
 						end;
 					end
 
 				end
 				else if(out[54:53] == 2'b01)begin
 					process_error(out[54:44],error_flag);
+					`ifdef DEBUG
 					$display("ERROR PACKET %s(%6b) received  for A=%0b B=%0b op_set=%s", error_flag.name,error_flag, A, B, operation.name);
 					test_result = "PASSED";
 					$display("Test %s\n", test_result);
+					`endif
 				end
 				else begin
 					$display("INTERNAL ERROR - incorrect packet returned\n");
@@ -317,7 +353,7 @@ module top;
 			end
 
 			else begin
-				$display("INTERNAL ERROR", i);
+				$display("INTERNAL ERROR");
 			end
 
 

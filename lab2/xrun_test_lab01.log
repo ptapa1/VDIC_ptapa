@@ -1,4 +1,4 @@
-TOOL:	xrun	19.09-s003: Started on Nov 04, 2021 at 05:20:18 CET
+TOOL:	xrun	19.09-s003: Started on Nov 04, 2021 at 16:14:24 CET
 xrun
 	-F tb.f
 		-F ./dut.f
@@ -19,20 +19,9 @@ xrun
 Loading snapshot worklib.top:sv .................... Done
 xcelium> source /cad/XCELIUM1909/tools/xcelium/files/xmsimrc
 xcelium> run
-data_error
-xmsim: *W,ASRTST (./alu_tb.sv,490): (time 70440 NS) Assertion top.scoreboard.verify_result.CHK_RESULT has failed
-70440000 Test FAILED for A=102596364 B=1683484104 op_set=1
-Expected: 1717567436  received: 4294967295
-crc_error
-xmsim: *W,ASRTST (./alu_tb.sv,490): (time 137920 NS) Assertion top.scoreboard.verify_result.CHK_RESULT has failed
-137920000 Test FAILED for A=345900841 B=0 op_set=4
-Expected:  345900841  received: 2152013824
-op_error
-xmsim: *W,ASRTST (./alu_tb.sv,490): (time 202020 NS) Assertion top.scoreboard.verify_result.CHK_RESULT has failed
-202020000 Test FAILED for A=459334966 B=3353892495 op_set=1
-Expected: 3756586943  received: 4294967295
-Simulation complete via $finish(1) at time 306780 NS + 0
-./alu_tb.sv:302 		$finish;
+Test PASSED
+Simulation complete via $finish(1) at time 341820 NS + 0
+./alu_tb.sv:317 		$finish;
 xcelium> exit
 See ./cov_work/scope/lab01/icc.com file for message(s) on coverage constant object marking
 
@@ -43,6 +32,6 @@ coverage setup:
   testname :  lab01
 
 coverage files:
-  model(design data) :  ./cov_work/scope/icc_66bb1026_5648ae9b.ucm
-  data               :  ./cov_work/scope/lab01/icc_66bb1026_5648ae9b.ucd
-TOOL:	xrun	19.09-s003: Exiting on Nov 04, 2021 at 05:20:19 CET  (total: 00:00:01)
+  model(design data) :  ./cov_work/scope/icc_38895b80_64b1f33b.ucm
+  data               :  ./cov_work/scope/lab01/icc_38895b80_64b1f33b.ucd
+TOOL:	xrun	19.09-s003: Exiting on Nov 04, 2021 at 16:14:25 CET  (total: 00:00:01)

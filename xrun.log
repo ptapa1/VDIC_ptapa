@@ -1,20 +1,20 @@
 xrun: 19.09-s003: (c) Copyright 1995-2019 Cadence Design Systems, Inc.
-TOOL:	xrun	19.09-s003: Started on Oct 17, 2021 at 01:13:23 CEST
+TOOL:	xrun	19.09-s003: Started on Nov 04, 2021 at 16:00:34 CET
 xrun
 	+elaborate
 	+sv
-	-f /home/student/ptapa/VDIC/.dvt/lab1.build
-		-F lab1/tb.f
-			-F lab1/dut.f
+	-f /home/student/ptapa/VDIC/.dvt/lab2.build
+		-F lab2/tb.f
+			-F lab2/dut.f
 				mtm_Alu.vp
 			alu_tb.sv
-file: lab1/mtm_Alu.vp
+file: lab2/mtm_Alu.vp
 	module worklib.mtm_Alu:vp
 		errors: 0, warnings: 0
 		errors: 0, warnings: 0
 		errors: 0, warnings: 0
 		errors: 0, warnings: 0
-file: lab1/alu_tb.sv
+file: lab2/alu_tb.sv
 	module worklib.top:sv
 		errors: 0, warnings: 0
 		Caching library 'worklib' ....... Done
@@ -24,21 +24,25 @@ file: lab1/alu_tb.sv
 xmelab: *W,DSEMEL: This SystemVerilog design will be simulated as per IEEE 1800-2009 SystemVerilog simulation semantics. Use -disable_sem2009 option for turning off SV 2009 simulation semantics.
 	Building instance overlay tables: .................... Done
 	Generating native compiled code:
-			streams:   0, words:     0
-			streams:   0, words:     0
-			streams:   0, words:     0
-		worklib.top:sv <0x2d7587b6>
-			streams:   8, words: 10206
+			streams:   7, words:  3942
+			streams:   9, words: 25571
+			streams:   7, words:  3261
+		worklib.top:sv <0x3c0768a2>
+			streams:  43, words: 41063
 	Building instance specific data structures.
 	Loading native compiled code:     .................... Done
 	Design hierarchy summary:
 		                 Instances  Unique
 		Modules:                 5       5
-		Registers:              60      71
-		Scalar wires:            3       -
-		Always blocks:          12      12
-		Initial blocks:          3       3
-		Cont. assignments:       0       1
+		Registers:             112     112
+		Scalar wires:            8       -
+		Vectored wires:          2       -
+		Always blocks:          13      13
+		Initial blocks:         13      13
+		Final blocks:            1       1
+		Pseudo assignments:      2       2
+		Assertions:              1       1
+		Covergroup Instances:    0       4
 		Simulation timescale:  1ps
 	Writing initial simulation snapshot: worklib.top:sv
-TOOL:	xrun	19.09-s003: Exiting on Oct 17, 2021 at 01:13:23 CEST  (total: 00:00:00)
+TOOL:	xrun	19.09-s003: Exiting on Nov 04, 2021 at 16:00:34 CET  (total: 00:00:00)
