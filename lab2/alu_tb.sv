@@ -16,16 +16,16 @@ module top;
 	bit                 sout;
 	bit                clk;
 	bit                rst_n;
-	operation_t			op_set;
 
-	string             test_result = "PASSED";
-	string             all_tests_result = "PASSED";
+	//string             test_result = "PASSED";
+	//string             all_tests_result = "PASSED";
 	
 	bit [31:0] A,B,C;
 	bit [3:0] crc, flags;
-	bit [2:0] crc_out, crc_expected;
+	bit [2:0] crc_out, crc_expected, op;
 	bit [54:0] out;
-	bit [31:0] expected;
+	bit [10:0] ctr=10'b0;
+
 	bit done=1'b0;
 	error_flags error_flag;
 
@@ -115,7 +115,7 @@ module top;
 
 	endgroup
 
-covergroup output_flags;
+	covergroup output_flags;
 
 		option.name = "cg_output_flags";
 
@@ -126,23 +126,37 @@ covergroup output_flags;
 			bins negative  = {'h1};
 		}
 
+	endgroup
 	
+	covergroup err_flags;
+
+		option.name = "cg_error_flags";
+
+		coverpoint error_flag {
+			bins err_data = {'h24};
+			bins err_crc= {'h12};
+			bins err_op  = {'h9};
+		}
 
 	endgroup
 
 op_cov                      oc;
 zeros_or_ones_on_ops        c_00_FF;
 output_flags				out_flags;
+err_flags					flags_errors;
+
 initial begin : coverage
     oc      = new();
     c_00_FF = new();
 	out_flags = new();
+	flags_errors = new();
     forever begin : sample_cov
         @(posedge clk);
         if(rst_n) begin
             oc.sample();
             c_00_FF.sample();
 	        out_flags.sample();
+	        flags_errors.sample();
         end
     end
 end : coverage
@@ -196,7 +210,7 @@ end : coverage
 
 	initial begin : tester
 		reset_alu();
-		
+		ctr=10'b0;
 		repeat(1000)begin
 			
 	    
@@ -204,16 +218,62 @@ end : coverage
 	        operation = get_op();                                                                                                                           
 	        A      = get_data();
 			B      = get_data();
-			get_crc(B,A,operation,crc);                                                                                                                     
-			send_data(B[31:24]);                                                                                            
-			send_data(B[23:16]);                                                                                     
-			send_data(B[15:8]);                                                                                      
-			send_data(B[7:0]);                                                                                       
-			send_data(A[31:24]);                                                                                     
-			send_data(A[23:16]);                                                                                     
-	        send_data(A[15:8]);                                                                                      
-			send_data(A[7:0]);                                                                                       
-			send_command(operation,crc);
+			crc = get_crc(B,A,operation);                                                                                                                     
+			
+			if((ctr == 10'h14)||(ctr == 10'hC8)) begin //
+				send_data(B[31:24]);                                                                                            
+				send_data(B[23:16]);
+				
+				send_data(B[7:0]);
+				
+				send_data(A[23:16]);                                                                                     
+		        send_data(A[15:8]);                                                                                      
+				send_data(A[7:0]);                                                                                       
+				send_command(operation,crc);
+				$display("data_error");
+			end
+			
+			else if((ctr == 10'h28)||(ctr == 10'hA7)) begin
+				crc = crc + 2'($random);
+				send_data(B[31:24]);                                                                                            
+				send_data(B[23:16]);                                                                                     
+				send_data(B[15:8]);                                                                                      
+				send_data(B[7:0]);                                                                                       
+				send_data(A[31:24]);                                                                                     
+				send_data(A[23:16]);                                                                                     
+		        send_data(A[15:8]);                                                                                      
+				send_data(A[7:0]);                                                                                       
+				send_command(operation,crc);
+				$display("crc_error");
+			end
+			
+			else if((ctr == 10'h7A)||(ctr == 10'h3B)) begin
+				op = 3'($random);
+				crc = get_crc(B,A,op);
+				send_data(B[31:24]);                                                                                            
+				send_data(B[23:16]);                                                                                     
+				send_data(B[15:8]);                                                                                      
+				send_data(B[7:0]);                                                                                       
+				send_data(A[31:24]);                                                                                     
+				send_data(A[23:16]);                                                                                     
+		        send_data(A[15:8]);                                                                                      
+				send_data(A[7:0]);                                                                                       
+				send_command(op,crc);
+				$display("op_error");
+			end
+			
+			else begin
+				send_data(B[31:24]);                                                                                            
+				send_data(B[23:16]);                                                                                     
+				send_data(B[15:8]);                                                                                      
+				send_data(B[7:0]);                                                                                       
+				send_data(A[31:24]);                                                                                     
+				send_data(A[23:16]);                                                                                     
+		        send_data(A[15:8]);                                                                                      
+				send_data(A[7:0]);                                                                                       
+				send_command(operation,crc);
+				//$display("no error");
+			end 
 			
 			read_data(out);
 			
@@ -223,7 +283,7 @@ end : coverage
 				process_data(out[32:22],C[15:8]);                                                                    
 				process_data(out[21:11],C[7:0]);                                                                     
 				process_command(out[10:0],flags,crc_out);                                                            
-				get_crc_out(C,flags,crc_expected);                                                                   
+				crc_expected = get_crc_out(C,flags);                                                                   
 			end                                                                                                      
 			else if(out[54:53] == 2'b01)begin                                                                        
 				process_error(out[54:44],error_flag);                                                                                                                                                                  
@@ -232,7 +292,7 @@ end : coverage
 				$display("INTERNAL ERROR - incorrect packet returned\n");                                                                                   
 			end
 			done = 1'b1;
-			
+			ctr = ctr+10'b1;
 		    if($get_coverage() == 100) break; 
 		    
 		end                                  	
@@ -281,7 +341,19 @@ end : coverage
 			sin = packet[i];
 		end
 	endtask
+	
+	task send_message;
+		input[2:0] in_op;
+		input[3:0] in_crc;
+		static reg [10:0] packet = 11'b01000000001;
 
+		packet [7:5]= in_op;
+		packet [4:1]= in_crc;
+		for(int i=10;i>=0;i--)begin
+			@(negedge clk);
+			sin = packet[i];
+		end
+	endtask
 
 //------------------------------------------------------------------------------
 // read data and command tasks
@@ -345,7 +417,6 @@ end : coverage
 			sub_op : ret = B - A;
 			default: begin
 				$error("%0t INTERNAL ERROR. get_expected: unexpected case argument: %s", $time, op_set);
-				test_result = "FAILED";
 				return -1;
 			end
 		endcase
@@ -355,12 +426,12 @@ end : coverage
 //------------------------------------------------------------------------------
 // calculate CRC
 //-----------------------------------------------
-	task get_crc;
+	function bit [3:0] get_crc;
 
 		input [31:0] B;
 		input [31:0] A;
 		input [2:0] op;
-		output [3:0] crc;
+		//output [3:0] crc;
 		reg [67:0] d;
 		reg [3:0] c;
 		reg [3:0] newcrc;
@@ -375,15 +446,14 @@ end : coverage
 			newcrc[1] = d[67] ^ d[66] ^ d[65] ^ d[63] ^ d[61] ^ d[60] ^ d[57] ^ d[53] ^ d[52] ^ d[51] ^ d[50] ^ d[48] ^ d[46] ^ d[45] ^ d[42] ^ d[38] ^ d[37] ^ d[36] ^ d[35] ^ d[33] ^ d[31] ^ d[30] ^ d[27] ^ d[23] ^ d[22] ^ d[21] ^ d[20] ^ d[18] ^ d[16] ^ d[15] ^ d[12] ^ d[8] ^ d[7] ^ d[6] ^ d[5] ^ d[3] ^ d[1] ^ d[0] ^ c[1] ^ c[2] ^ c[3];
 			newcrc[2] = d[67] ^ d[66] ^ d[64] ^ d[62] ^ d[61] ^ d[58] ^ d[54] ^ d[53] ^ d[52] ^ d[51] ^ d[49] ^ d[47] ^ d[46] ^ d[43] ^ d[39] ^ d[38] ^ d[37] ^ d[36] ^ d[34] ^ d[32] ^ d[31] ^ d[28] ^ d[24] ^ d[23] ^ d[22] ^ d[21] ^ d[19] ^ d[17] ^ d[16] ^ d[13] ^ d[9] ^ d[8] ^ d[7] ^ d[6] ^ d[4] ^ d[2] ^ d[1] ^ c[0] ^ c[2] ^ c[3];
 			newcrc[3] = d[67] ^ d[65] ^ d[63] ^ d[62] ^ d[59] ^ d[55] ^ d[54] ^ d[53] ^ d[52] ^ d[50] ^ d[48] ^ d[47] ^ d[44] ^ d[40] ^ d[39] ^ d[38] ^ d[37] ^ d[35] ^ d[33] ^ d[32] ^ d[29] ^ d[25] ^ d[24] ^ d[23] ^ d[22] ^ d[20] ^ d[18] ^ d[17] ^ d[14] ^ d[10] ^ d[9] ^ d[8] ^ d[7] ^ d[5] ^ d[3] ^ d[2] ^ c[1] ^ c[3];
-			crc = newcrc;
+			get_crc = newcrc;
 		end
-	endtask
+	endfunction
 
 
-	task get_crc_out;
+	function [2:0] get_crc_out;
 		input [31:0] data;
 		input [3:0] flags;
-		output [2:0] crc;
 		reg [36:0] d;
 		reg [2:0] c;
 		reg [2:0] newcrc;
@@ -396,11 +466,11 @@ end : coverage
 			newcrc[0] = d[35] ^ d[32] ^ d[31] ^ d[30] ^ d[28] ^ d[25] ^ d[24] ^ d[23] ^ d[21] ^ d[18] ^ d[17] ^ d[16] ^ d[14] ^ d[11] ^ d[10] ^ d[9] ^ d[7] ^ d[4] ^ d[3] ^ d[2] ^ d[0] ^ c[1];
 			newcrc[1] = d[36] ^ d[35] ^ d[33] ^ d[30] ^ d[29] ^ d[28] ^ d[26] ^ d[23] ^ d[22] ^ d[21] ^ d[19] ^ d[16] ^ d[15] ^ d[14] ^ d[12] ^ d[9] ^ d[8] ^ d[7] ^ d[5] ^ d[2] ^ d[1] ^ d[0] ^ c[1] ^ c[2];
 			newcrc[2] = d[36] ^ d[34] ^ d[31] ^ d[30] ^ d[29] ^ d[27] ^ d[24] ^ d[23] ^ d[22] ^ d[20] ^ d[17] ^ d[16] ^ d[15] ^ d[13] ^ d[10] ^ d[9] ^ d[8] ^ d[6] ^ d[3] ^ d[2] ^ d[1] ^ c[0] ^ c[2];
-			crc = newcrc;
+			get_crc_out = newcrc;
 		end
 
 
-	endtask
+	endfunction
 
 //------------------------------------------------------------------------------
 // Scoreboard
@@ -418,9 +488,9 @@ always @(negedge clk) begin : scoreboard
         end
         else begin
             $warning("%0t Test FAILED for A=%0d B=%0d op_set=%0d\nExpected: %d  received: %d",
-                $time, A, B, op_set , predicted_result, C);
+                $time, A, B, operation , predicted_result, C);
         end;
-        done = 1'b0;
+        done <= 1'b0;
     end
 end : scoreboard
 
