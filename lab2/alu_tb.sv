@@ -12,6 +12,12 @@ module top;
 		or_op                    = 3'b001,
 		add_op                   = 3'b100,
 		sub_op                   = 3'b101} operation_t;
+	
+	typedef enum bit[2:0] {no_op1 = 3'b010,
+		no_op2                    = 3'b011,
+		no_op3                   = 3'b110,
+		no_op4                   = 3'b111} no_ops;
+	
 	bit              sin = 1;
 	bit                 sout;
 	bit                clk;
@@ -25,7 +31,8 @@ module top;
 	bit [2:0] crc_out, crc_expected, op;
 	bit [54:0] out;
 	bit [10:0] ctr=10'b0;
-
+	bit send_error_flag_data=0,send_error_flag_crc=0,send_error_flag_op=0;
+	bit [1:0] error_trig=2'b0;
 	bit done=1'b0;
 	error_flags error_flag;
 
@@ -192,6 +199,17 @@ end : coverage
 	endfunction : get_op
 
 //---------------------------------
+	function no_ops get_no_op();
+		bit [2:0] op_choice;
+		op_choice = $random;
+		case (op_choice)
+			3'b010 : return no_op1;
+			3'b011 : return no_op2;
+			3'b110 : return no_op3;
+			3'b111 : return no_op4;
+		endcase // case (op_choice)
+	endfunction : get_no_op
+//---------------------------------
 	function bit [31:0] get_data();
 		bit [1:0] zero_ones;
 		zero_ones = 2'($random);
@@ -203,6 +221,19 @@ end : coverage
 			return 32'($random);
 	endfunction : get_data
 
+//---------------------------------
+	function bit [1:0] trigger_error();
+		bit [11:0] error;
+		error = 12'($random);
+		if (error == 12'h111)
+			return 2'b01;
+		else if (error == 12'h222)
+			return 2'b10;
+		else if (error == 12'h444)
+			return 2'b11;
+		else
+			return 2'b00;
+	endfunction : trigger_error
 //------------------------
 // Tester main
 
@@ -211,7 +242,7 @@ end : coverage
 	initial begin : tester
 		reset_alu();
 		ctr=10'b0;
-		repeat(1000)begin
+		repeat(100000)begin
 			
 	    
 	        @(negedge clk);                                                                                                                                 
@@ -219,8 +250,9 @@ end : coverage
 	        A      = get_data();
 			B      = get_data();
 			crc = get_crc(B,A,operation);                                                                                                                     
-			
-			if((ctr == 10'h14)||(ctr == 10'hC8)) begin //
+			error_trig = trigger_error();
+			if(error_trig == 2'b01) begin//
+				send_error_flag_data <= 1'b1;
 				send_data(B[31:24]);                                                                                            
 				send_data(B[23:16]);
 				
@@ -230,10 +262,11 @@ end : coverage
 		        send_data(A[15:8]);                                                                                      
 				send_data(A[7:0]);                                                                                       
 				send_command(operation,crc);
-				$display("data_error");
+				$display("data_error, flag=%b", send_error_flag_data);
 			end
 			
-			else if((ctr == 10'h28)||(ctr == 10'hA7)) begin
+			else if(error_trig == 2'b10) begin
+				send_error_flag_crc <= 1'b1;
 				crc = crc + 2'($random);
 				send_data(B[31:24]);                                                                                            
 				send_data(B[23:16]);                                                                                     
@@ -244,11 +277,12 @@ end : coverage
 		        send_data(A[15:8]);                                                                                      
 				send_data(A[7:0]);                                                                                       
 				send_command(operation,crc);
-				$display("crc_error");
+				$display("crc_error, flag=%b", send_error_flag_crc);
 			end
 			
-			else if((ctr == 10'h7A)||(ctr == 10'h3B)) begin
-				op = 3'($random);
+			else if(error_trig == 2'b11) begin
+				send_error_flag_op <= 1'b1;
+				op = get_no_op();
 				crc = get_crc(B,A,op);
 				send_data(B[31:24]);                                                                                            
 				send_data(B[23:16]);                                                                                     
@@ -259,7 +293,7 @@ end : coverage
 		        send_data(A[15:8]);                                                                                      
 				send_data(A[7:0]);                                                                                       
 				send_command(op,crc);
-				$display("op_error");
+				$display("op_error, flag=%b", send_error_flag_op);
 			end
 			
 			else begin
@@ -477,21 +511,33 @@ end : coverage
 //------------------------------------------------------------------------------
 always @(negedge clk) begin : scoreboard
     if(done) begin:verify_result
-        logic [31:0] predicted_result;
-
-        predicted_result = get_expected(A, B, operation);
-
-        CHK_RESULT: assert(C === predicted_result) begin
-           `ifdef DEBUG
-            $display("%0t Test passed for A=%0d B=%0d op_set=%0d", $time, A, B, operation);
+        
+        if(send_error_flag_data || send_error_flag_crc || send_error_flag_op) begin
+        	`ifdef DEBUG
+            $display("%0t Expected error packet for flag %s received for A=%0d B=%0d op_set=%0d", $time, error_flag.name, A, B, operation);
            `endif
         end
         else begin
-            $warning("%0t Test FAILED for A=%0d B=%0d op_set=%0d\nExpected: %d  received: %d",
-                $time, A, B, operation , predicted_result, C);
-        end;
-        done <= 1'b0;
-    end
+	        logic [31:0] predicted_result;
+	
+	        predicted_result = get_expected(A, B, operation);
+	        
+	        CHK_RESULT: assert(C === predicted_result) begin
+	           `ifdef DEBUG
+	            $display("%0t Test passed for A=%0d B=%0d op_set=%0d", $time, A, B, operation);
+	           `endif
+	        end
+	        else begin
+	        	$warning("%0t Test FAILED for A=%0d B=%0d op_set=%0d\nExpected: %d  received: %d",
+	            $time, A, B, operation , predicted_result, C);
+    		end;
+	    end
+	    done <= 1'b0;
+	    send_error_flag_data <= 1'b0;
+	    send_error_flag_crc <= 1'b0;
+	    send_error_flag_op <= 1'b0;
+    end 
+    
 end : scoreboard
 
 endmodule
