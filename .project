@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<projectDescription>
+	<name>VDIC</name>
+	<comment></comment>
+	<projects>
+	</projects>
+	<buildSpec>
+		<buildCommand>
+			<name>ro.amiq.dvt.MixedLangBuilder</name>
+			<arguments>
+			</arguments>
+		</buildCommand>
+		<buildCommand>
+			<name>ro.amiq.dvt.DVTExternBuilder</name>
+			<arguments>
+			</arguments>
+		</buildCommand>
+	</buildSpec>
+	<natures>
+		<nature>ro.amiq.vlogdt.VlogNature</nature>
+	</natures>
+	<linkedResources>
+		<link>
+			<name>DVT Auto-Linked</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
+			<name>DVT Auto-Linked/home</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
+			<name>DVT Auto-Linked/home/student</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
+			<name>DVT Auto-Linked/home/student/ptapa</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
+			<name>DVT Auto-Linked/home/student/ptapa/VDIC</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
+			<name>DVT Auto-Linked/home/student/ptapa/VDIC/lab0</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
+			<name>DVT Auto-Linked/home/student/ptapa/VDIC/lab0/apple.v</name>
+			<type>1</type>
+			<locationURI>DVT_PATH/home/student/ptapa/VDIC/lab0/apple.v</locationURI>
+		</link>
+		<link>
+			<name>DVT Auto-Linked/home/student/ptapa/VDIC/lab0/apple_tb.v</name>
+			<type>1</type>
+			<locationURI>DVT_PATH/home/student/ptapa/VDIC/lab0/apple_tb.v</locationURI>
+		</link>
+		<link>
+			<name>DVT Auto-Linked/home/student/ptapa/VDIC/lab0/tb.f</name>
+			<type>1</type>
+			<locationURI>DVT_PATH/home/student/ptapa/VDIC/lab0/tb.f</locationURI>
+		</link>
+	</linkedResources>
+</projectDescription>
