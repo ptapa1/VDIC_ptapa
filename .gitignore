@@ -1,0 +1,7 @@
+*.log
+*.history
+*.key
+INCA*
+waves*
+xcelium*
+cov_work*
