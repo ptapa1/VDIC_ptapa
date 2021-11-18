@@ -165,7 +165,7 @@ import alu_pkg::*;
 			end
 			else begin
 				$display("INTERNbfm.AL ERROR - incorrect packet returned\n");
-				bfm.test_result = "Fbfm.AILED";
+				bfm.test_result = "FAILED";
 			end
 			bfm.done = 1'b1;
 			if($get_coverage() == 100) break;
