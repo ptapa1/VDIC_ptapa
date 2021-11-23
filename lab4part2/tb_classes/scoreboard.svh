@@ -1,6 +1,5 @@
 class scoreboard;
 	virtual alu_bfm bfm;
-//import alu_pkg::*;
 	
 	function new (virtual alu_bfm b);
 		bfm = b;

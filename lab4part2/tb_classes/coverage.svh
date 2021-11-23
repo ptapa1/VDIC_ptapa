@@ -1,7 +1,6 @@
 
 class coverage;
 	virtual alu_bfm bfm;
-	//import alu_pkg::*;
 
 	bit                  [31:0] A;
 	bit                  [31:0] B;
