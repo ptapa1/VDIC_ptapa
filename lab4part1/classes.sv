@@ -1,7 +1,7 @@
 
 virtual class shape;
-	real width;
-	real height;
+	protected real width;
+	protected real height;
 	
 	function new(real w, real h);
 		width = w;
@@ -9,18 +9,13 @@ virtual class shape;
 	endfunction : new
 	
 	pure virtual function real get_area();
-		//return area;
-	//endfunction : get_age
-	
+		
 	pure virtual function void print();
-		//return;
-	//endfunction
+		
 	
 endclass
 
 class rectangle extends shape;
-	
-	string name = "Rectangle";
 	
 	function new(real width, real height);
 		super.new(.w(width),.h(height));
@@ -31,17 +26,15 @@ class rectangle extends shape;
 	endfunction
 	
 	function void print();
-		$display("%s w=%g h=%g area=%g", name, width, height, get_area());
+		$display("Rectangle w=%g h=%g area=%g", width, height, get_area());
 	endfunction
 	
 endclass
 
-class square extends shape;
-	
-	string name = "Square";
+class square extends rectangle;
 	
 	function new(real width);
-		super.new(.w(width), .h(width));
+		super.new(.width(width), .height(width));
 	endfunction
 	
 	function real get_area();
@@ -49,14 +42,12 @@ class square extends shape;
 	endfunction
 	
 	function void print();
-		$display("%s w=%g h=%g area=%g", name, width, height, get_area());
+		$display("Square w=%g h=%g area=%g", width, height, get_area());
 	endfunction
 	
 endclass
 
 class triangle extends shape;
-	
-	string name = "Triangle";
 	
 	function new(real width, real height);
 		super.new(.w(width),.h(height));
@@ -67,7 +58,7 @@ class triangle extends shape;
 	endfunction
 	
 	function void print();
-		$display("%s w=%g h=%g area=%g", name, width, height, get_area());
+		$display("Triangle w=%g h=%g area=%g", width, height, get_area());
 	endfunction
 	
 endclass
