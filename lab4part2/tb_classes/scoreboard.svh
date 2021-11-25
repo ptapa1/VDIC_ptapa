@@ -45,7 +45,7 @@ endtask
 //------------------------------------------------------------------------------
 // calculate expected result
 //------------------------------------------------------------------------------
-	virtual function logic [31:0] get_expected(
+	protected virtual function logic [31:0] get_expected(
 			bit [31:0] A,
 			bit [31:0] B,
 			operation_t op_set

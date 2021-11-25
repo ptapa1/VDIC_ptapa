@@ -1,9 +1,9 @@
 class testbench;
 	virtual alu_bfm bfm;
 	
-	tester tester_h;
-	coverage coverage_h;
-	scoreboard scoreboard_h;
+	protected tester tester_h;
+	protected coverage coverage_h;
+	protected scoreboard scoreboard_h;
 	
 	function new (virtual alu_bfm b);
 		bfm = b;

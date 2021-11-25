@@ -2,11 +2,11 @@
 class coverage;
 	virtual alu_bfm bfm;
 
-	bit                  [31:0] A;
-	bit                  [31:0] B;
-	bit					 [3:0] flags;
-	operation_t                operation;
-	error_flags                error_flag;
+	protected bit                  [31:0] A;
+	protected bit                  [31:0] B;
+	protected bit					 [3:0] flags;
+	protected operation_t                operation;
+	protected error_flags                error_flag;
 
 	
 
