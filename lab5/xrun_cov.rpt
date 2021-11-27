@@ -1,4 +1,4 @@
-*I,RUNLD: Successfully loaded run /home/student/ptapa/VDIC/lab5/cov_work/scope/add_test.
+*I,RUNLD: Successfully loaded run /home/student/ptapa/VDIC/lab5/cov_work/scope/ff_00_test.
 *I,MERGL1: Merging Simulation Coverage ...
 ----------------------------
 *I,MERGL1: Preparing target model ...
@@ -8,6 +8,8 @@
 *I,MERGL2:   cov_work/scope/random_test:
 *I,MERGL3:       Data is projected in to the target model.
 *I,MERGL2:   cov_work/scope/add_test:
+*I,MERGL3:       Data is projected in to the target model.
+*I,MERGL2:   cov_work/scope/ff_00_test:
 *I,MERGL3:       Data is projected in to the target model.
 *I,MERGL1: Writing output database cov_work/scope/merged_results:
 *I,MERGL2:   Model: cov_work/scope/merged_results/icc_1db9bde1_28eab120.ucm

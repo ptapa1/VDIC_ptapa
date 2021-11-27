@@ -8,6 +8,13 @@ virtual class base_tester extends uvm_component;
 	function new (string name,uvm_component parent);
 		super.new(name, parent);
 	endfunction
+	
+	function void build_phase(uvm_phase phase);
+		
+		if(!uvm_config_db #(virtual alu_bfm)::get(null, "*","bfm", bfm))
+			$fatal(1,"Failed to get BFM");
+		
+	endfunction
 //------------------------------------------------------------------------------
 // Tester
 //------------------------------------------------------------------------------
@@ -30,6 +37,7 @@ virtual class base_tester extends uvm_component;
 	endfunction : get_no_op
 //---------------------------------
 	pure virtual function bit [31:0] get_data();
+	
 
 //---------------------------------
 	protected function bit [1:0] trigger_error();
@@ -77,19 +85,12 @@ virtual class base_tester extends uvm_component;
 // Tester main
 
 
-	function void build_phase(uvm_phase phase);
-		
-		if(!uvm_config_db #(virtual alu_bfm)::get(null, "*","bfm", bfm))
-			$fatal(1,"Failed to get BFM");
-		
-	endfunction
-
-
 	task run_phase(uvm_phase phase);
 		
 		phase.raise_objection(this);
 		
 		bfm.reset_alu();
+		
 		repeat(10000)begin
 			@(negedge bfm.clk);
 			bfm.operation = get_op();
@@ -170,8 +171,9 @@ virtual class base_tester extends uvm_component;
 			if($get_coverage() == 100) break;
 
 		end
+		
+		//$finish;
 		phase.drop_objection(this);
-		$finish;
 	endtask 
 	
 	

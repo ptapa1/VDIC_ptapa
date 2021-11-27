@@ -120,7 +120,6 @@ class coverage extends uvm_component;
     endfunction
 	
 	task run_phase(uvm_phase phase);
-		
 		forever begin : sample_cov
 			@(posedge bfm.clk);
 			A      = bfm.A;

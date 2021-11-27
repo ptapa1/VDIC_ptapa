@@ -1,3 +1,5 @@
+//`timescale 1ns/1ps
+
 package alu_pkg;
 	import uvm_pkg::*;
 	`include "uvm_macros.svh"
@@ -23,4 +25,6 @@ package alu_pkg;
 	`include "env.svh"
 	`include "random_test.svh"
 	`include "add_test.svh"
+	`include "ff_00_tester.svh"
+	`include "ff_00_test.svh"
 endpackage : alu_pkg
