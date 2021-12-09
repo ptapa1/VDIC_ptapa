@@ -2,6 +2,7 @@
 class coverage extends uvm_subscriber #(alu_input);
 	
 	`uvm_component_utils(coverage)
+	
 
 	protected bit                  [31:0] A;
 	protected bit                  [31:0] B;
@@ -116,7 +117,7 @@ class coverage extends uvm_subscriber #(alu_input);
 	function void write(alu_input t);
 		A = t.A;
 		B = t.B;
-		operation = t.operation;
+		operation = operation_t'(t.operation);
 		flags = t.flags;
 		error_flag = t.error_flag;
 		op_cov.sample();
@@ -124,8 +125,6 @@ class coverage extends uvm_subscriber #(alu_input);
 		output_flags.sample();
 		err_flags.sample();
 	endfunction : write
-	
-	
 
 	
 

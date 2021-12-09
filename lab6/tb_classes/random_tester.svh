@@ -3,7 +3,6 @@ class random_tester extends base_tester;
 	
 	`uvm_component_utils(random_tester)
 	
-	//virtual alu_bfm bfm;
 	
 	function new (string name,uvm_component parent);
 		super.new(name, parent);

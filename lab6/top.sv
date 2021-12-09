@@ -14,6 +14,7 @@ module top;
 		.sout(bfm.sout)
 		); 
 
+	//testbench testbench_h;
 	
 	initial begin
 		uvm_config_db #(virtual alu_bfm)::set(null, "*","bfm", bfm);

@@ -2,9 +2,9 @@
 class result_monitor extends uvm_component;
     `uvm_component_utils(result_monitor)
 
-    uvm_analysis_port #(alu_output) ap;
+    uvm_analysis_port #(alu_input) ap;
 
-    function void write_to_monitor(alu_output r);
+    function void write_to_monitor(alu_input r);
         ap.write(r);
     endfunction : write_to_monitor
 

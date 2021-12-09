@@ -1,10 +1,11 @@
 
 virtual class base_tester extends uvm_component;
 	
-	`uvm_component_utils(base_tester)
-	
+	//`uvm_component_utils(base_tester)
 	
 	uvm_put_port #(alu_input) command_port;
+	
+	virtual alu_bfm bfm;
 	
 	function new (string name,uvm_component parent);
 		super.new(name, parent);
@@ -12,7 +13,10 @@ virtual class base_tester extends uvm_component;
 	
 	function void build_phase(uvm_phase phase);
 		command_port = new("command_port", this);
-	endfunction : build_phase
+		if(!uvm_config_db #(virtual alu_bfm)::get(null, "*","bfm", bfm))
+			$fatal(1,"Failed to get BFM");
+		
+	endfunction
 //------------------------------------------------------------------------------
 // Tester
 //------------------------------------------------------------------------------
@@ -85,20 +89,17 @@ virtual class base_tester extends uvm_component;
 
 	task run_phase(uvm_phase phase);
 		alu_input command;
+		
 		phase.raise_objection(this);
-		command.error_trig = 2'b00;
-		command.send_error_flag_crc=0;
-		command.send_error_flag_data=0;
-		command.send_error_flag_op=0;
-		command_port.put(command);
-		repeat(10000)begin
-			
+		bfm.reset_alu();
+		
+		repeat(1000)begin
 			command.operation = get_op();
 			command.A      = get_data();
 			command.B      = get_data();
 			command.crc = get_crc(command.B,command.A,command.operation);
 			command.error_trig = trigger_error();
-			if(command.error_trig == 2'b01) begin//
+			if(command.error_trig == 2'b01) begin
 				command.send_error_flag_data <= 1'b1;
 			end
 
@@ -109,13 +110,11 @@ virtual class base_tester extends uvm_component;
 
 			else if(command.error_trig == 2'b11) begin
 				command.send_error_flag_op <= 1'b1;
-				command.op_err = get_no_op();
-				command.crc = get_crc(command.B,command.A,command.op_err);
+				command.operation = get_no_op();
+				command.crc = get_crc(command.B,command.A,command.operation);
 			end
 			command_port.put(command);
 		end
-		#2000;
-		//$finish;
 		phase.drop_objection(this);
 	endtask 
 	

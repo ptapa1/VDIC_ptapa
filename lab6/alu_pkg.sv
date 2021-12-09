@@ -18,22 +18,17 @@ package alu_pkg;
 		no_op4                   = 3'b111} no_ops;
 	
 	typedef struct packed {
-        bit [31:0] A;
-        bit [31:0] B;
-        //bit [31:0] C;
-		bit [3:0] crc; 
-		bit [3:0] flags;
-		bit [1:0] error_trig;
+		bit [31:0] A,B;
+		bit [2:0] operation;
+		bit [3:0] crc;
 		bit send_error_flag_data,send_error_flag_crc,send_error_flag_op;
-		error_flags error_flag;
-		operation_t operation;
-		no_ops op_err;} alu_input;
-	
-	typedef struct packed {
-        bit [31:0] C; 
-		bit [54:0] read;
+		bit [1:0] error_trig;
+		no_ops op_err;
+		bit [31:0] C;
 		bit [3:0] flags;
-		error_flags error_flag;} alu_output;
+		bit [2:0] crc_out;
+		error_flags error_flag;
+        } alu_input;
 	
 	`include "command_monitor.svh"
 	`include "result_monitor.svh"
@@ -49,6 +44,4 @@ package alu_pkg;
 	`include "add_test.svh"
 	`include "ff_00_tester.svh"
 	`include "ff_00_test.svh"
-	
-	
 endpackage : alu_pkg
