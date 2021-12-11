@@ -100,16 +100,16 @@ virtual class tester extends uvm_component;
 //			command.B      = get_data();
 //			command.crc = get_crc(command.B,command.A,command.operation);
 //			command.error_trig = trigger_error();
-//			if(command.error_trig == 2'b01) begin
-//				command.send_error_flag_data <= 1'b1;
-//			end
+			if(command.error_trig == 2'b01) begin
+				command.send_error_flag_data <= 1'b1;
+			end
 //
-//			else if(command.error_trig == 2'b10) begin
-//				command.send_error_flag_crc <= 1'b1;
-//				command.crc = command.crc + 2'($random);
-//			end
+			else if(command.error_trig == 2'b10) begin
+				command.send_error_flag_crc <= 1'b1;
+				command.crc = command.crc + 2'($random);
+			end
 //
-			if(command.error_trig == 2'b11) begin
+			else if(command.error_trig == 2'b11) begin
 				command.send_error_flag_op <= 1'b1;
 				command.operation = get_no_op();
 				command.crc = get_crc(command.B,command.A,command.operation);

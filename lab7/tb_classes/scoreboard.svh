@@ -17,8 +17,8 @@ class scoreboard extends uvm_subscriber #(result_transaction);
 	endfunction
 	
 	function void build_phase(uvm_phase phase);
-		//if(!uvm_config_db #(virtual alu_bfm)::get(null, "*","bfm", bfm))
-        //   $fatal(1, "Failed to get BFM");
+		if(!uvm_config_db #(virtual alu_bfm)::get(null, "*","bfm", bfm))
+           $fatal(1, "Failed to get BFM");
 		cmd_f = new("cmd_f", this);
 	endfunction : build_phase
 	
@@ -83,7 +83,7 @@ class scoreboard extends uvm_subscriber #(result_transaction);
 		predicted = new("predicted");
 		//bit [31:0] ret;
 		`ifdef DEBUG
-		$display("%0t DEBUG: get_expected(%0d,%0d,%0d)",$time, cmd.A, cmd.B, cmd.op_set);
+		$display("%0t DEBUG: get_expected(%0d,%0d,%0d)",$time, cmd.A, cmd.B, cmd.operation);
 		`endif
 		case(operation_t'(cmd.operation))
 			and_op : predicted.C = cmd.A & cmd.B;

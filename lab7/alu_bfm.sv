@@ -14,7 +14,7 @@ interface alu_bfm;
 	bit [1:0] error_trig=2'b0;
 	bit done=1'b0;
 	error_flags error_flag;
-
+	no_ops op_err;
 	operation_t operation;
 	
 	command_monitor command_monitor_h;
@@ -85,9 +85,9 @@ interface alu_bfm;
 		send_error_flag_crc = command.send_error_flag_crc;
 		send_error_flag_op  = command.send_error_flag_op;
 		error_trig = command.error_trig;
-
+		op_err = command.op_err;
 		if(error_trig == 2'b01) begin
-			send_error_flag_data <= 1'b1;
+			//send_error_flag_data <= 1'b1;
 			send_data(B[31:24]);
 			send_data(B[23:16]);
 			send_data(B[7:0]);
@@ -98,8 +98,8 @@ interface alu_bfm;
 		end
 
 		else if(error_trig == 2'b10) begin
-			send_error_flag_crc <= 1'b1;
-			crc = crc + 2'($random);
+			//send_error_flag_crc <= 1'b1;
+			//crc = crc + 2'($random);
 			send_data(B[31:24]);
 			send_data(B[23:16]);
 			send_data(B[15:8]);
@@ -209,13 +209,19 @@ interface alu_bfm;
 
 	always @(posedge clk) begin : op_monitor
 		command_transaction command;
-		result_transaction result;
+		//result_transaction result;
 		if (done) begin : start_high
 			command.A  <= A;
 			command.B  <= B;
 			command.operation <= operation;
 			command.flags <= flags;
 			command.error_flag <= error_flag;
+			command.send_error_flag_data <= send_error_flag_data;
+			command.send_error_flag_crc <= send_error_flag_crc;
+			command.send_error_flag_op <= send_error_flag_op;
+			command.crc <= crc;
+			command.error_trig <= error_trig;
+			command.op_err <= op_err;
 			command_monitor_h.write_to_monitor(command.A, command.B, command.operation, 
 				command.crc, command.send_error_flag_data, command.send_error_flag_crc, 
 				command.send_error_flag_op, command.error_trig, command.op_err, 
@@ -226,8 +232,8 @@ interface alu_bfm;
 	always @(negedge rst_n) begin : rst_monitor
 		command_transaction command;
 		reset_alu();
-		if (command_monitor_h != null) //guard against VCS time 0 negedge
-			command_monitor_h.write_to_monitor(command.A, command.B, command.operation, command.crc, command.send_error_flag_data, command.send_error_flag_crc, command.send_error_flag_op, command.error_trig, command.op_err, command.flags, command.error_flag);
+		//if (command_monitor_h != null) //guard against VCS time 0 negedge
+			//command_monitor_h.write_to_monitor(command.A, command.B, command.operation, command.crc, command.send_error_flag_data, command.send_error_flag_crc, command.send_error_flag_op, command.error_trig, command.op_err, command.flags, command.error_flag);
 	end : rst_monitor
 
 	
@@ -236,7 +242,8 @@ interface alu_bfm;
 		forever begin
 			@(posedge clk) ;
 			if (done)
-				result_monitor_h.write_to_monitor(result.C, result.crc_out, result.flags, result.error_flag);
+				//result_monitor_h.write_to_monitor(result.C, result.crc_out, result.flags, result.error_flag);
+				result_monitor_h.write_to_monitor(result.C);
 			done = 1'b0;
 		end
 	end : result_monitor_thread
