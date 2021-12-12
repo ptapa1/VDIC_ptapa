@@ -2,9 +2,6 @@
 class command_transaction extends uvm_transaction;
     `uvm_object_utils(command_transaction)
 
-//    rand byte unsigned A;
-//    rand byte unsigned B;
-//    rand operation_t op;
 
 		rand bit [31:0] A,B;
 		rand operation_t operation;
@@ -14,7 +11,7 @@ class command_transaction extends uvm_transaction;
 		no_ops op_err;
 		//bit [31:0] C;
 		bit [3:0] flags;
-		bit [2:0] crc_out;
+		//bit [2:0] crc_out;
 		error_flags error_flag;
 
     constraint data {
@@ -35,7 +32,6 @@ class command_transaction extends uvm_transaction;
 
         A  = copied_transaction_h.A;
         B  = copied_transaction_h.B;
-        //C  = copied_transaction_h.C;
         operation = copied_transaction_h.operation;
         crc = copied_transaction_h.crc;
         send_error_flag_data = copied_transaction_h.send_error_flag_data;
@@ -44,7 +40,6 @@ class command_transaction extends uvm_transaction;
         error_trig = copied_transaction_h.error_trig;
         op_err = copied_transaction_h.op_err;
         flags = copied_transaction_h.flags;
-       // crc_out = copied_transaction_h.crc_out;
         error_flag = copied_transaction_h.error_flag;
 
     endfunction : do_copy
@@ -76,7 +71,6 @@ class command_transaction extends uvm_transaction;
             same = super.do_compare(rhs, comparer) &&
             (compared_transaction_h.A == A) &&
             (compared_transaction_h.B == B) &&
-            //(compared_transaction_h.C == C) &&
             (compared_transaction_h.operation == operation) &&
             (compared_transaction_h.crc == crc) &&
             (compared_transaction_h.send_error_flag_data == send_error_flag_data) &&
@@ -85,7 +79,6 @@ class command_transaction extends uvm_transaction;
             (compared_transaction_h.error_trig == error_trig) &&
             (compared_transaction_h.op_err == op_err) &&
             (compared_transaction_h.flags == flags) &&
-            //(compared_transaction_h.crc_out == crc_out) &&
             (compared_transaction_h.error_flag == error_flag);
 
         return same;
@@ -95,14 +88,10 @@ class command_transaction extends uvm_transaction;
 
     function string convert2string();
         string s;
-       // s = $sformatf("A: %8h  B: %8h  op: %s crc: %s \
-		//	data error flag: %s crc error flag: %s op error flag: %s \
-		//	error triggered?: %s op error: %s", A, B, operation, crc, send_error_flag_data,
-		//	send_error_flag_crc, send_error_flag_op, error_trig, op_err);
-		 s = $sformatf("A: %32h  B: %32h  op: %b crc: %b \
+		 s = $sformatf("A: %8h  B: %8h  op: %s crc: %b \
 			data error flag: %b crc error flag: %b op error flag: %b \
-			error triggered?: %b op error: %b", A, B, operation, crc, send_error_flag_data, send_error_flag_crc, 
-            send_error_flag_op, error_trig, op_err);
+			error triggered?: %b op error: %s", A, B, operation, crc, send_error_flag_data, send_error_flag_crc, 
+            send_error_flag_op, error_trig, op_err.name());
         return s;
     endfunction : convert2string
 

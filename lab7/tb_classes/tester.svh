@@ -91,29 +91,40 @@ virtual class tester extends uvm_component;
 		phase.raise_objection(this);
 		command = new("command");
 		bfm.reset_alu();
-		command_port.put(command);
+		//command_port.put(command);
 		command = command_transaction::type_id::create("command");
 		repeat(1000)begin
 			assert(command.randomize());
-//			command.operation = get_op();
-//			command.A      = get_data();
-//			command.B      = get_data();
-//			command.crc = get_crc(command.B,command.A,command.operation);
-//			command.error_trig = trigger_error();
+			command.error_trig = trigger_error();
 			if(command.error_trig == 2'b01) begin
+				command.crc = get_crc(command.B,command.A,command.operation);
 				command.send_error_flag_data <= 1'b1;
+				command.send_error_flag_crc <= 1'b0;
+				command.send_error_flag_op <= 1'b0;
+				
 			end
-//
+
 			else if(command.error_trig == 2'b10) begin
 				command.send_error_flag_crc <= 1'b1;
+				command.send_error_flag_data <= 1'b0;
+				command.send_error_flag_op <= 1'b0;
 				command.crc = command.crc + 2'($random);
 			end
-//
+
 			else if(command.error_trig == 2'b11) begin
 				command.send_error_flag_op <= 1'b1;
-				command.operation = get_no_op();
+				command.send_error_flag_crc <= 1'b0;
+				command.send_error_flag_data <= 1'b0;
+				command.operation = no_ops'(get_no_op());
 				command.crc = get_crc(command.B,command.A,command.operation);
 			end
+			else begin
+				command.send_error_flag_op <= 1'b0;
+				command.send_error_flag_crc <= 1'b0;
+				command.send_error_flag_data <= 1'b0;
+				command.crc = get_crc(command.B,command.A,command.operation);
+			end 
+			#500
 			command_port.put(command);
 		end
 		phase.drop_objection(this);

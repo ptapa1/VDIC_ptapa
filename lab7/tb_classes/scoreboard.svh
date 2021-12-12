@@ -79,9 +79,10 @@ class scoreboard extends uvm_subscriber #(result_transaction);
 			while(bfm.rst_n == 0);
             
 			if(cmd.send_error_flag_data || cmd.send_error_flag_crc || cmd.send_error_flag_op) begin
-			`ifdef DEBUG
-				$display("%0t Expected error packet for flag %s received for A=%0d B=%0d op_set=%0d", $time, cmd.error_flag.name, cmd.A, cmd.B, cmd.operation);
-		   `endif
+			//`ifdef DEBUG
+			
+				$display("!!!!!!!!!!!!!!!!!!%0t Expected error packet for flag %s received for A=%0d B=%0d op_set=%0d", $time, cmd.error_flag.name, cmd.A, cmd.B, cmd.operation);
+		    //`endif
 			end
 			else begin
 				predicted_result = get_expected(cmd);
@@ -97,9 +98,7 @@ class scoreboard extends uvm_subscriber #(result_transaction);
 		        else
 		            `uvm_info ("SELF CHECKER", {"PASS: ", data_str}, UVM_HIGH)
 			end
-			cmd.send_error_flag_data <= 1'b0;
-			cmd.send_error_flag_crc <= 1'b0;
-			cmd.send_error_flag_op <= 1'b0;
+			
 	endfunction
 
 //------------------------------------------------------------------------------

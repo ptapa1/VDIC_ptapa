@@ -73,7 +73,7 @@ waveform set \
     -signalnames name \
     -signalwidth 175 \
     -units ps \
-    -valuewidth 206
+    -valuewidth 75
 waveform baseline set -time 0
 
 set id [waveform add -signals  {
@@ -92,6 +92,36 @@ set id [waveform add -signals  {
 	simulator::top.bfm.command_monitor_h
 	} ]
 waveform format $id -trace reference
+waveform hierarchy expand $id
+set id2 [lindex [waveform hierarchy content $id] 0]
+waveform format $id2 -trace reference
+set id2 [lindex [waveform hierarchy content $id] 1]
+waveform format $id2 -trace reference
+waveform hierarchy expand $id2
+set id3 [lindex [waveform hierarchy content $id2] 4]
+waveform format $id3 -trace reference
+waveform hierarchy expand $id3
+set id4 [lindex [waveform hierarchy content $id3] 0]
+waveform format $id4 -trace reference
+set id4 [lindex [waveform hierarchy content $id3] 1]
+waveform format $id4 -trace reference
+waveform hierarchy expand $id4
+set id5 [lindex [waveform hierarchy content $id4] 4]
+waveform format $id5 -trace reference
+set id5 [lindex [waveform hierarchy content $id4] 15]
+waveform format $id5 -trace reference
+waveform hierarchy collapse $id3
+set id3 [lindex [waveform hierarchy content $id2] 12]
+waveform hierarchy expand $id3
+set id3 [lindex [waveform hierarchy content $id2] 15]
+waveform format $id3 -trace reference
+waveform hierarchy expand $id3
+set id4 [lindex [waveform hierarchy content $id3] 0]
+waveform format $id4 -trace reference
+set id4 [lindex [waveform hierarchy content $id3] 1]
+waveform format $id4 -trace reference
+waveform hierarchy collapse $id3
+waveform hierarchy collapse $id
 set id [waveform add -signals  {
 	simulator::top.bfm.crc
 	} ]
@@ -110,22 +140,19 @@ set id [waveform add -signals  {
 set id [waveform add -signals  {
 	simulator::top.bfm.flags
 	} ]
-waveform hierarchy collapse $id
 set id [waveform add -signals  {
 	simulator::top.bfm.op
 	} ]
-waveform hierarchy collapse $id
 set id [waveform add -signals  {
 	simulator::top.bfm.op_err
 	} ]
-waveform hierarchy collapse $id
+waveform hierarchy expand $id
 set id [waveform add -signals  {
 	simulator::top.bfm.operation
 	} ]
 set id [waveform add -signals  {
 	simulator::top.bfm.out
 	} ]
-waveform hierarchy collapse $id
 set id [waveform add -signals  {
 	simulator::top.bfm.result_monitor_h
 	} ]
@@ -133,91 +160,14 @@ waveform format $id -trace reference
 waveform hierarchy expand $id
 set id2 [lindex [waveform hierarchy content $id] 0]
 waveform format $id2 -trace reference
-waveform hierarchy expand $id2
 set id2 [lindex [waveform hierarchy content $id] 1]
 waveform format $id2 -trace reference
 waveform hierarchy expand $id2
-set id3 [lindex [waveform hierarchy content $id2] 2]
-waveform hierarchy collapse $id3
 set id3 [lindex [waveform hierarchy content $id2] 4]
 waveform format $id3 -trace reference
 set id3 [lindex [waveform hierarchy content $id2] 15]
 waveform format $id3 -trace reference
-waveform hierarchy expand $id3
-set id4 [lindex [waveform hierarchy content $id3] 0]
-waveform hierarchy expand $id4
-set id5 [lindex [waveform hierarchy content $id4] 0]
-waveform format $id5 -radix %b
-set id5 [lindex [waveform hierarchy content $id4] 1]
-waveform format $id5 -radix %b
-set id5 [lindex [waveform hierarchy content $id4] 2]
-waveform format $id5 -radix %b
-set id5 [lindex [waveform hierarchy content $id4] 3]
-waveform format $id5 -radix %b
-set id5 [lindex [waveform hierarchy content $id4] 4]
-waveform format $id5 -radix %b
-set id5 [lindex [waveform hierarchy content $id4] 5]
-waveform format $id5 -radix %b
-set id5 [lindex [waveform hierarchy content $id4] 6]
-waveform format $id5 -radix %b
-set id5 [lindex [waveform hierarchy content $id4] 7]
-waveform format $id5 -radix %b
-set id5 [lindex [waveform hierarchy content $id4] 8]
-waveform format $id5 -radix %b
-set id5 [lindex [waveform hierarchy content $id4] 9]
-waveform format $id5 -radix %b
-set id5 [lindex [waveform hierarchy content $id4] 10]
-waveform format $id5 -radix %b
-set id5 [lindex [waveform hierarchy content $id4] 11]
-waveform format $id5 -radix %b
-set id5 [lindex [waveform hierarchy content $id4] 12]
-waveform format $id5 -radix %b
-set id5 [lindex [waveform hierarchy content $id4] 13]
-waveform format $id5 -radix %b
-set id5 [lindex [waveform hierarchy content $id4] 14]
-waveform format $id5 -radix %b
-set id5 [lindex [waveform hierarchy content $id4] 15]
-waveform format $id5 -radix %b
-set id5 [lindex [waveform hierarchy content $id4] 16]
-waveform format $id5 -radix %b
-set id5 [lindex [waveform hierarchy content $id4] 17]
-waveform format $id5 -radix %b
-set id5 [lindex [waveform hierarchy content $id4] 18]
-waveform format $id5 -radix %b
-set id5 [lindex [waveform hierarchy content $id4] 19]
-waveform format $id5 -radix %b
-set id5 [lindex [waveform hierarchy content $id4] 20]
-waveform format $id5 -radix %b
-set id5 [lindex [waveform hierarchy content $id4] 21]
-waveform format $id5 -radix %b
-set id5 [lindex [waveform hierarchy content $id4] 22]
-waveform format $id5 -radix %b
-set id5 [lindex [waveform hierarchy content $id4] 23]
-waveform format $id5 -radix %b
-set id5 [lindex [waveform hierarchy content $id4] 24]
-waveform format $id5 -radix %b
-set id5 [lindex [waveform hierarchy content $id4] 25]
-waveform format $id5 -radix %b
-set id5 [lindex [waveform hierarchy content $id4] 26]
-waveform format $id5 -radix %b
-set id5 [lindex [waveform hierarchy content $id4] 27]
-waveform format $id5 -radix %b
-set id5 [lindex [waveform hierarchy content $id4] 28]
-waveform format $id5 -radix %b
-set id5 [lindex [waveform hierarchy content $id4] 29]
-waveform format $id5 -radix %b
-set id5 [lindex [waveform hierarchy content $id4] 30]
-waveform format $id5 -radix %b
-set id5 [lindex [waveform hierarchy content $id4] 31]
-waveform format $id5 -radix %b
-waveform hierarchy collapse $id4
-set id3 [lindex [waveform hierarchy content $id2] 16]
-waveform format $id3 -trace reference
-waveform hierarchy expand $id3
-set id4 [lindex [waveform hierarchy content $id3] 0]
-waveform format $id4 -trace reference
-set id4 [lindex [waveform hierarchy content $id3] 1]
-waveform format $id4 -trace reference
+waveform hierarchy collapse $id
 set id [waveform add -signals  {
 	simulator::top.bfm.rst_n
 	} ]
@@ -237,7 +187,7 @@ set id [waveform add -signals  {
 	simulator::top.bfm.sout
 	} ]
 
-waveform xview limits 3243278000ps 3243280000ps
+waveform xview limits 0 3149660000ps
 
 #
 # Waveform Window Links
@@ -259,7 +209,7 @@ srcbrowser set \
     -showcallstack 0 \
     -displayvalues 0
 
-srcbrowser show -scope worklib.uvm_pkg::uvm_root.run_test -file /cad/XCELIUM1909/tools/methodology/UVM/CDNS-1.2/sv/src/base/uvm_root.svh -line 1
+srcbrowser show -scope top.bfm -file /home/student/ptapa/VDIC/lab7/alu_bfm.sv -line 17
 
 srcbrowser sidebar visibility partial
 
@@ -267,7 +217,7 @@ srcbrowser sidebar visibility partial
 # Console windows
 #
 console set -windowname Console
-window geometry Console 741x660+250+154
+window geometry Console 730x250+261+564
 
 #
 # Layout selection

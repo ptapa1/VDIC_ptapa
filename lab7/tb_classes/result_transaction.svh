@@ -1,11 +1,8 @@
 class result_transaction extends uvm_transaction;
 	
-	`uvm_object_utils(result_transaction)
+	//`uvm_object_utils(result_transaction)
 	
 	bit [31:0] C;
-//	bit [2:0] crc_out; 
-//	bit [3:0] flags;
-//	error_flags error_flag;
 	
 	function new(string name = "");
 		super.new(name);
@@ -19,15 +16,11 @@ class result_transaction extends uvm_transaction;
         assert($cast(copied_transaction_h,rhs)) else
             `uvm_fatal("RESULT TRANSACTION","Failed cast in do_copy");
         C = copied_transaction_h.C;
-        //crc_out = copied_transaction_h.crc_out;
-       // flags = copied_transaction_h.flags;
-       // error_flag = copied_transaction_h.error_flag;
 	endfunction : do_copy
 	
 	virtual function string convert2string();
 		string s;
-        //s = $sformatf("result: %32h flags: %b error_flags: %s",C,flags, error_flag.name());
-        s = $sformatf("result: %32h",C);
+        s = $sformatf("result: %8h",C);
         return s;
 	endfunction : convert2string
 	
@@ -40,7 +33,6 @@ class result_transaction extends uvm_transaction;
         same = super.do_compare(rhs, comparer);
 
         $cast(RHS, rhs);
-        //same = (C == RHS.C) && (crc_out == RHS.crc_out) && (flags == RHS.flags) && (error_flag == RHS.error_flag) && same;
         same = (C == RHS.C) && same;
         return same;
 	endfunction : do_compare

@@ -3,7 +3,7 @@ class add_transaction extends command_transaction;
 	
 	`uvm_object_utils(add_transaction)
 	
-	constraint add_only {operation_t'(operation) == add_op;}
+	constraint add_only {operation == add_op;}
 	
 	function new(string name="");
 		super.new(name);

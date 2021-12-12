@@ -117,7 +117,7 @@ class coverage extends uvm_subscriber #(command_transaction);
 	function void write(command_transaction t);
 		A = t.A;
 		B = t.B;
-		operation = operation_t'(t.operation);
+		operation = t.operation;
 		flags = t.flags;
 		error_flag = t.error_flag;
 		op_cov.sample();

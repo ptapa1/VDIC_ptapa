@@ -13,8 +13,7 @@ class driver extends uvm_component;
 	
 	task run_phase(uvm_phase phase);
 		command_transaction command;
-
-        forever begin : command_loop
+		forever begin : command_loop
             command_port.get(command);
 	        bfm.send_op(command);
         end : command_loop
