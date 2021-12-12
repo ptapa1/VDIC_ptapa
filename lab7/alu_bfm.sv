@@ -16,11 +16,13 @@ interface alu_bfm;
 	error_flags error_flag;
 	no_ops op_err;
 	operation_t operation;
+	//assign operation = op;
 	
 	command_monitor command_monitor_h;
 	result_monitor result_monitor_h;
-	result_transaction result;
-
+	//result_transaction result;
+	
+	
 	//string   test_result = "PASSED";
 //------------------------------------------------------------------------------
 // Clock generator
@@ -208,42 +210,49 @@ interface alu_bfm;
 
 
 	always @(posedge clk) begin : op_monitor
-		command_transaction command;
+		//command_transaction command;
 		//result_transaction result;
 		if (done) begin : start_high
-			command.A  <= A;
-			command.B  <= B;
-			command.operation <= operation;
-			command.flags <= flags;
-			command.error_flag <= error_flag;
-			command.send_error_flag_data <= send_error_flag_data;
-			command.send_error_flag_crc <= send_error_flag_crc;
-			command.send_error_flag_op <= send_error_flag_op;
-			command.crc <= crc;
-			command.error_trig <= error_trig;
-			command.op_err <= op_err;
-			command_monitor_h.write_to_monitor(command.A, command.B, command.operation, 
-				command.crc, command.send_error_flag_data, command.send_error_flag_crc, 
-				command.send_error_flag_op, command.error_trig, command.op_err, 
-				command.flags, command.error_flag);
+			//command = new("command");
+//			command.A  <= A;
+//			command.B  <= B;
+//			command.operation <= operation;
+//			command.flags <= flags;
+//			command.error_flag <= error_flag;
+//			command.send_error_flag_data <= send_error_flag_data;
+//			command.send_error_flag_crc <= send_error_flag_crc;
+//			command.send_error_flag_op <= send_error_flag_op;
+//			command.crc <= crc;
+//			command.error_trig <= error_trig;
+//			command.op_err <= op_err;
+//			command_monitor_h.write_to_monitor(command.A, command.B, command.operation, 
+//				command.crc, command.send_error_flag_data, command.send_error_flag_crc, 
+//				command.send_error_flag_op, command.error_trig, command.op_err, 
+//				command.flags, command.error_flag);
+			command_monitor_h.write_to_monitor(A, B, operation, crc, 
+				send_error_flag_data, send_error_flag_crc, send_error_flag_op, 
+				error_trig, op_err, flags, error_flag);
 		end : start_high
 	end : op_monitor
 
 	always @(negedge rst_n) begin : rst_monitor
-		command_transaction command;
+		//command_transaction command;
+		//command = new("command");
 		reset_alu();
-		//if (command_monitor_h != null) //guard against VCS time 0 negedge
+		if (command_monitor_h != null) //guard against VCS time 0 negedge
 			//command_monitor_h.write_to_monitor(command.A, command.B, command.operation, command.crc, command.send_error_flag_data, command.send_error_flag_crc, command.send_error_flag_op, command.error_trig, command.op_err, command.flags, command.error_flag);
+			command_monitor_h.write_to_monitor(A, B, operation, crc, send_error_flag_data, send_error_flag_crc, send_error_flag_op, error_trig, op_err, flags, error_flag);
 	end : rst_monitor
 
 	
 
 	initial begin : result_monitor_thread
+		//result_monitor_h
 		forever begin
 			@(posedge clk) ;
 			if (done)
 				//result_monitor_h.write_to_monitor(result.C, result.crc_out, result.flags, result.error_flag);
-				result_monitor_h.write_to_monitor(result.C);
+				result_monitor_h.write_to_monitor(C);
 			done = 1'b0;
 		end
 	end : result_monitor_thread

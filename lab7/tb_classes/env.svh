@@ -28,8 +28,8 @@ class env extends uvm_env;
 		driver_h.command_port.connect(command_f.get_export);
 		tester_h.command_port.connect(command_f.put_export);
 		command_f.put_ap.connect(coverage_h.analysis_export);
-		result_monitor_h.ap.connect(scoreboard_h.analysis_export);
 		command_monitor_h.ap.connect(scoreboard_h.cmd_f.analysis_export);
+		result_monitor_h.ap.connect(scoreboard_h.analysis_export);
 	endfunction : connect_phase
 
 endclass

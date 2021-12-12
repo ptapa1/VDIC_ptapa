@@ -44,40 +44,6 @@ class scoreboard extends uvm_subscriber #(result_transaction);
 	endfunction
 	
 	
-//------------------------------------------------------------------------------
-// Scoreboard
-//------------------------------------------------------------------------------
-	function void write(result_transaction t); 
-			string data_str;
-			command_transaction cmd;
-			result_transaction predicted_result;
-				if(cmd.send_error_flag_data || cmd.send_error_flag_crc || cmd.send_error_flag_op) begin
-				`ifdef DEBUG
-					$display("%0t Expected error packet for flag %s received for A=%0d B=%0d op_set=%0d", $time, cmd.error_flag.name, cmd.A, cmd.B, cmd.operation);
-			   `endif
-				end
-				else begin
-					predicted_result = get_expected(cmd);
-	
-					 data_str  = { cmd.convert2string(),
-			            " ==>  Actual " , t.convert2string(),
-			            "/Predicted ",predicted_result.convert2string()};
-			
-			        if (!predicted_result.compare(t)) begin
-			            `uvm_error("SELF CHECKER", {"FAIL: ",data_str})
-			            tr = TEST_FAILED;
-			        end
-			        else
-			            `uvm_info ("SELF CHECKER", {"PASS: ", data_str}, UVM_HIGH)
-				end
-				cmd.send_error_flag_data <= 1'b0;
-				cmd.send_error_flag_crc <= 1'b0;
-				cmd.send_error_flag_op <= 1'b0;
-	endfunction
-
-//------------------------------------------------------------------------------
-// calculate expected result
-//------------------------------------------------------------------------------
 	protected virtual function result_transaction get_expected(command_transaction cmd);
 		result_transaction predicted;
 		predicted = new("predicted");
@@ -85,7 +51,7 @@ class scoreboard extends uvm_subscriber #(result_transaction);
 		`ifdef DEBUG
 		$display("%0t DEBUG: get_expected(%0d,%0d,%0d)",$time, cmd.A, cmd.B, cmd.operation);
 		`endif
-		case(operation_t'(cmd.operation))
+		case(cmd.operation)
 			and_op : predicted.C = cmd.A & cmd.B;
 			add_op : predicted.C = cmd.A + cmd.B;
 			or_op : predicted.C = cmd.A | cmd.B;
@@ -95,8 +61,51 @@ class scoreboard extends uvm_subscriber #(result_transaction);
 				//return -1;
 			end
 		endcase
-		return(predicted);
+		return predicted;
 	endfunction
+	
+//------------------------------------------------------------------------------
+// Scoreboard
+//------------------------------------------------------------------------------
+	function void write(result_transaction t); 
+			string data_str;
+			command_transaction cmd;
+			result_transaction predicted_result;
+			//cmd = new("cmd");
+			
+			do
+	            if (!cmd_f.try_get(cmd))
+	                $fatal(1, "Missing command in self checker");
+			while(bfm.rst_n == 0);
+            
+			if(cmd.send_error_flag_data || cmd.send_error_flag_crc || cmd.send_error_flag_op) begin
+			`ifdef DEBUG
+				$display("%0t Expected error packet for flag %s received for A=%0d B=%0d op_set=%0d", $time, cmd.error_flag.name, cmd.A, cmd.B, cmd.operation);
+		   `endif
+			end
+			else begin
+				predicted_result = get_expected(cmd);
+
+				 data_str  = { cmd.convert2string(),
+		            " ==>  Actual " , t.convert2string(),
+		            "/Predicted ",predicted_result.convert2string()};
+		
+		        if (!predicted_result.compare(t)) begin
+		            `uvm_error("SELF CHECKER", {"FAIL: ",data_str})
+		            tr = TEST_FAILED;
+		        end
+		        else
+		            `uvm_info ("SELF CHECKER", {"PASS: ", data_str}, UVM_HIGH)
+			end
+			cmd.send_error_flag_data <= 1'b0;
+			cmd.send_error_flag_crc <= 1'b0;
+			cmd.send_error_flag_op <= 1'b0;
+	endfunction
+
+//------------------------------------------------------------------------------
+// calculate expected result
+//------------------------------------------------------------------------------
+	
 	
 	function void report_phase(uvm_phase phase);
         super.report_phase(phase);

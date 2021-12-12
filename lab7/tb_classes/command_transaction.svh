@@ -7,12 +7,12 @@ class command_transaction extends uvm_transaction;
 //    rand operation_t op;
 
 		rand bit [31:0] A,B;
-		rand bit [2:0] operation;
+		rand operation_t operation;
 		bit [3:0] crc;
 		bit send_error_flag_data,send_error_flag_crc,send_error_flag_op;
 		bit [1:0] error_trig;
 		no_ops op_err;
-		bit [31:0] C;
+		//bit [31:0] C;
 		bit [3:0] flags;
 		bit [2:0] crc_out;
 		error_flags error_flag;
