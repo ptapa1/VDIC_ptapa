@@ -1,26 +1,26 @@
 
-class command_transaction extends uvm_transaction;
-    `uvm_object_utils(command_transaction)
+class random_command extends uvm_transaction;
+    `uvm_object_utils(random_command)
 
 
 		rand bit [31:0] A,B;
 		rand operation_t operation;
 		bit [3:0] crc;
 		bit send_error_flag_data,send_error_flag_crc,send_error_flag_op;
-		bit [1:0] error_trig;
-		no_ops op_err;
-		//bit [31:0] C;
+		rand bit [1:0] error_trig;
+		rand no_ops op_err;
 		bit [3:0] flags;
-		//bit [2:0] crc_out;
 		error_flags error_flag;
 
     constraint data {
-        A dist {32'h00000000:=1, [32'h00000001 : 32'hFFFFFFFE]:=1, 32'hFFFFFFFF:=1};
-        B dist {32'h00000000:=1, [32'h00000001 : 32'hFFFFFFFE]:=1, 32'hFFFFFFFF:=1};
+        A dist {[32'h00000001 : 32'hFFFFFFFE]:=1};
+        B dist {[32'h00000001 : 32'hFFFFFFFE]:=1};
     }
 
+ 	
+
     function void do_copy(uvm_object rhs);
-        command_transaction copied_transaction_h;
+        random_command copied_transaction_h;
 
         if(rhs == null)
             `uvm_fatal("COMMAND TRANSACTION", "Tried to copy from a null pointer")
@@ -45,9 +45,9 @@ class command_transaction extends uvm_transaction;
     endfunction : do_copy
 
 
-    function command_transaction clone_me();
+    function random_command clone_me();
         
-        command_transaction clone;
+        random_command clone;
         uvm_object tmp;
 
         tmp = this.clone();
@@ -59,7 +59,7 @@ class command_transaction extends uvm_transaction;
 
     function bit do_compare(uvm_object rhs, uvm_comparer comparer);
         
-        command_transaction compared_transaction_h;
+        random_command compared_transaction_h;
         bit same;
 
         if (rhs==null) `uvm_fatal("RANDOM TRANSACTION",
@@ -100,4 +100,4 @@ class command_transaction extends uvm_transaction;
         super.new(name);
     endfunction : new
 
-endclass : command_transaction
+endclass : random_command

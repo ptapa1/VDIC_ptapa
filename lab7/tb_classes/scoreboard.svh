@@ -8,7 +8,7 @@ class scoreboard extends uvm_subscriber #(result_transaction);
     } test_result;
 	
 	virtual alu_bfm bfm;
-	uvm_tlm_analysis_fifo #(command_transaction) cmd_f;
+	uvm_tlm_analysis_fifo #(random_command) cmd_f;
 	
 	protected test_result tr = TEST_PASSED;
 	
@@ -44,7 +44,7 @@ class scoreboard extends uvm_subscriber #(result_transaction);
 	endfunction
 	
 	
-	protected virtual function result_transaction get_expected(command_transaction cmd);
+	protected virtual function result_transaction get_expected(random_command cmd);
 		result_transaction predicted;
 		predicted = new("predicted");
 		//bit [31:0] ret;
@@ -69,20 +69,17 @@ class scoreboard extends uvm_subscriber #(result_transaction);
 //------------------------------------------------------------------------------
 	function void write(result_transaction t); 
 			string data_str;
-			command_transaction cmd;
+			random_command cmd;
 			result_transaction predicted_result;
-			//cmd = new("cmd");
-			
 			do
 	            if (!cmd_f.try_get(cmd))
 	                $fatal(1, "Missing command in self checker");
 			while(bfm.rst_n == 0);
             
 			if(cmd.send_error_flag_data || cmd.send_error_flag_crc || cmd.send_error_flag_op) begin
-			//`ifdef DEBUG
-			
-				$display("!!!!!!!!!!!!!!!!!!%0t Expected error packet for flag %s received for A=%0d B=%0d op_set=%0d", $time, cmd.error_flag.name, cmd.A, cmd.B, cmd.operation);
-		    //`endif
+			`ifdef DEBUG
+				$display("%0t Expected error packet for flag %s received for A=%0d B=%0d op_set=%0d", $time, cmd.error_flag.name, cmd.A, cmd.B, cmd.operation);
+		    `endif
 			end
 			else begin
 				predicted_result = get_expected(cmd);

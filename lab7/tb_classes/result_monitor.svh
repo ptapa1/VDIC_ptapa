@@ -5,9 +5,6 @@ class result_monitor extends uvm_component;
 	virtual alu_bfm bfm;
 	uvm_analysis_port #(result_transaction) ap;
 
-	//function void write_to_monitor(bit [31:0] C, bit [2:0] crc_out, bit [3:0] flags, error_flags error_flag);
-
-
 	function void build_phase(uvm_phase phase);
 
 		if(!uvm_config_db #(virtual alu_bfm)::get(null, "*","bfm", bfm))

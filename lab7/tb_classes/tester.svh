@@ -2,7 +2,7 @@
 virtual class tester extends uvm_component;
 	`uvm_component_utils (tester)
 	
-	uvm_put_port #(command_transaction) command_port;
+	uvm_put_port #(random_command) command_port;
 	
 	virtual alu_bfm bfm;
 	
@@ -15,53 +15,12 @@ virtual class tester extends uvm_component;
 		if(!uvm_config_db #(virtual alu_bfm)::get(null, "*","bfm", bfm))
 			$fatal(1,"Failed to get BFM");
 	endfunction
-//------------------------------------------------------------------------------
-// Tester
-//------------------------------------------------------------------------------
 
-//---------------------------------
-// Random data generation functions
-
-	pure virtual function operation_t get_op();
-
-//---------------------------------
-	protected function no_ops get_no_op();
-		bit [2:0] op_choice;
-		op_choice = $random;
-		case (op_choice)
-			3'b010 : return no_op1;
-			3'b011 : return no_op2;
-			3'b110 : return no_op3;
-			3'b111 : return no_op4;
-		endcase // case (op_choice)
-	endfunction : get_no_op
-//---------------------------------
-	pure virtual function bit [31:0] get_data();
-	
-
-//---------------------------------
-	protected function bit [1:0] trigger_error();
-		bit [1:0] error;
-		error = 2'($random);
-		if (error == 2'b01)
-			return 2'b01;
-		else if (error == 2'b10)
-			return 2'b10;
-		else if (error == 2'b11)
-			return 2'b11;
-		else
-			return 2'b00;
-	endfunction : trigger_error
-	
-	//------------------------------------------------------------------------------
-// calculate CRC
-//-----------------------------------------------
 	protected function bit [3:0] get_crc;
 
 		input [31:0] B;
 		input [31:0] A;
 		input [2:0] op;
-		//output [3:0] crc;
 		reg [67:0] d;
 		reg [3:0] c;
 		reg [3:0] newcrc;
@@ -79,29 +38,23 @@ virtual class tester extends uvm_component;
 			get_crc = newcrc;
 		end
 	endfunction
-	
-	
-//------------------------
-// Tester main
 
 
 	task run_phase(uvm_phase phase);
-		command_transaction command;
+		random_command command;
 		
 		phase.raise_objection(this);
 		command = new("command");
 		bfm.reset_alu();
-		//command_port.put(command);
-		command = command_transaction::type_id::create("command");
+		command_port.put(command);
+		command = random_command::type_id::create("command");
 		repeat(1000)begin
 			assert(command.randomize());
-			command.error_trig = trigger_error();
 			if(command.error_trig == 2'b01) begin
 				command.crc = get_crc(command.B,command.A,command.operation);
 				command.send_error_flag_data <= 1'b1;
 				command.send_error_flag_crc <= 1'b0;
 				command.send_error_flag_op <= 1'b0;
-				
 			end
 
 			else if(command.error_trig == 2'b10) begin
@@ -115,7 +68,7 @@ virtual class tester extends uvm_component;
 				command.send_error_flag_op <= 1'b1;
 				command.send_error_flag_crc <= 1'b0;
 				command.send_error_flag_data <= 1'b0;
-				command.operation = no_ops'(get_no_op());
+				command.operation = command.op_err;
 				command.crc = get_crc(command.B,command.A,command.operation);
 			end
 			else begin
@@ -124,9 +77,10 @@ virtual class tester extends uvm_component;
 				command.send_error_flag_data <= 1'b0;
 				command.crc = get_crc(command.B,command.A,command.operation);
 			end 
-			#500
+			#100
 			command_port.put(command);
 		end
+		#500
 		phase.drop_objection(this);
 	endtask 
 	

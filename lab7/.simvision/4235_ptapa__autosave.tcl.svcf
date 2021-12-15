@@ -62,8 +62,8 @@ browser timecontrol set -lock 0
 #
 # Waveform windows
 #
-if {[catch {window new WaveWindow -name "Waveform 1" -geometry 1920x974+0+0}] != ""} {
-    window geometry "Waveform 1" 1920x974+0+0
+if {[catch {window new WaveWindow -name "Waveform 1" -geometry 1920x1004+0+25}] != ""} {
+    window geometry "Waveform 1" 1920x1004+0+25
 }
 window target "Waveform 1" on
 waveform using {Waveform 1}
@@ -92,36 +92,6 @@ set id [waveform add -signals  {
 	simulator::top.bfm.command_monitor_h
 	} ]
 waveform format $id -trace reference
-waveform hierarchy expand $id
-set id2 [lindex [waveform hierarchy content $id] 0]
-waveform format $id2 -trace reference
-set id2 [lindex [waveform hierarchy content $id] 1]
-waveform format $id2 -trace reference
-waveform hierarchy expand $id2
-set id3 [lindex [waveform hierarchy content $id2] 4]
-waveform format $id3 -trace reference
-waveform hierarchy expand $id3
-set id4 [lindex [waveform hierarchy content $id3] 0]
-waveform format $id4 -trace reference
-set id4 [lindex [waveform hierarchy content $id3] 1]
-waveform format $id4 -trace reference
-waveform hierarchy expand $id4
-set id5 [lindex [waveform hierarchy content $id4] 4]
-waveform format $id5 -trace reference
-set id5 [lindex [waveform hierarchy content $id4] 15]
-waveform format $id5 -trace reference
-waveform hierarchy collapse $id3
-set id3 [lindex [waveform hierarchy content $id2] 12]
-waveform hierarchy expand $id3
-set id3 [lindex [waveform hierarchy content $id2] 15]
-waveform format $id3 -trace reference
-waveform hierarchy expand $id3
-set id4 [lindex [waveform hierarchy content $id3] 0]
-waveform format $id4 -trace reference
-set id4 [lindex [waveform hierarchy content $id3] 1]
-waveform format $id4 -trace reference
-waveform hierarchy collapse $id3
-waveform hierarchy collapse $id
 set id [waveform add -signals  {
 	simulator::top.bfm.crc
 	} ]
@@ -146,7 +116,6 @@ set id [waveform add -signals  {
 set id [waveform add -signals  {
 	simulator::top.bfm.op_err
 	} ]
-waveform hierarchy expand $id
 set id [waveform add -signals  {
 	simulator::top.bfm.operation
 	} ]
@@ -157,17 +126,6 @@ set id [waveform add -signals  {
 	simulator::top.bfm.result_monitor_h
 	} ]
 waveform format $id -trace reference
-waveform hierarchy expand $id
-set id2 [lindex [waveform hierarchy content $id] 0]
-waveform format $id2 -trace reference
-set id2 [lindex [waveform hierarchy content $id] 1]
-waveform format $id2 -trace reference
-waveform hierarchy expand $id2
-set id3 [lindex [waveform hierarchy content $id2] 4]
-waveform format $id3 -trace reference
-set id3 [lindex [waveform hierarchy content $id2] 15]
-waveform format $id3 -trace reference
-waveform hierarchy collapse $id
 set id [waveform add -signals  {
 	simulator::top.bfm.rst_n
 	} ]
@@ -187,31 +145,11 @@ set id [waveform add -signals  {
 	simulator::top.bfm.sout
 	} ]
 
-waveform xview limits 0 3149660000ps
+waveform xview limits 228157455ps 415010543ps
 
 #
 # Waveform Window Links
 #
-
-#
-# Source Browser windows
-#
-if {[catch {window new SrcBrowser -name "Source Browser 1" -geometry 700x525+1000+0}] != ""} {
-    window geometry "Source Browser 1" 700x525+1000+0
-}
-window target "Source Browser 1" on
-srcbrowser using {Source Browser 1}
-srcbrowser set \
-    -primarycursor TimeA \
-    -units ps \
-    -radix default \
-    -showstrength 0 \
-    -showcallstack 0 \
-    -displayvalues 0
-
-srcbrowser show -scope top.bfm -file /home/student/ptapa/VDIC/lab7/alu_bfm.sv -line 17
-
-srcbrowser sidebar visibility partial
 
 #
 # Console windows

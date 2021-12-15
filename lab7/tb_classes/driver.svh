@@ -3,7 +3,7 @@ class driver extends uvm_component;
 	`uvm_component_utils(driver)
 
 	virtual alu_bfm bfm;
-	uvm_get_port #(command_transaction) command_port;
+	uvm_get_port #(random_command) command_port;
 	
 	function void build_phase(uvm_phase phase);
 		if(!uvm_config_db #(virtual alu_bfm)::get(null, "*","bfm", bfm))
@@ -12,7 +12,7 @@ class driver extends uvm_component;
 	endfunction : build_phase
 	
 	task run_phase(uvm_phase phase);
-		command_transaction command;
+		random_command command;
 		forever begin : command_loop
             command_port.get(command);
 	        bfm.send_op(command);

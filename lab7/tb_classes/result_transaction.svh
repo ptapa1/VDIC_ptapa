@@ -1,7 +1,5 @@
 class result_transaction extends uvm_transaction;
 	
-	//`uvm_object_utils(result_transaction)
-	
 	bit [31:0] C;
 	
 	function new(string name = "");

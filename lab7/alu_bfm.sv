@@ -16,14 +16,10 @@ interface alu_bfm;
 	error_flags error_flag;
 	no_ops op_err;
 	bit [2:0] operation;
-	//assign operation = op;
 	
 	command_monitor command_monitor_h;
 	result_monitor result_monitor_h;
-	//result_transaction result;
 	
-	
-	//string   test_result = "PASSED";
 //------------------------------------------------------------------------------
 // Clock generator
 //------------------------------------------------------------------------------
@@ -78,7 +74,7 @@ interface alu_bfm;
 		end
 	endtask
 
-	task send_op (command_transaction command);
+	task send_op (random_command command);
 		A = command.A;
 		B = command.B;
 		operation = command.operation;
@@ -149,7 +145,6 @@ interface alu_bfm;
 		end
 		else begin
 			$display("INTERNAL ERROR - incorrect packet returned\n");
-		//test_result = "FAILED";
 		end
 		done=1'b1;
 	endtask
@@ -200,39 +195,27 @@ interface alu_bfm;
 	endtask
 
 	
-
-
-
 	always @(posedge clk) begin : op_monitor
-		command_transaction command;
 		if (done) begin 
 			command_monitor_h.write_to_monitor(A, B, operation, crc, send_error_flag_data, send_error_flag_crc, send_error_flag_op, error_trig, op_err, flags, error_flag);
-			$display("%b, %b, %s, %b, %b %b %b %b, %b, flags: %b, err_flags: %b",A, B, operation, crc, send_error_flag_data, send_error_flag_crc, send_error_flag_op, error_trig, op_err, flags, error_flag);
 		end 
 	end : op_monitor
 
 	always @(negedge rst_n) begin : rst_monitor
-		command_transaction command;
-		//command = new("command");
 		reset_alu();
 		if (command_monitor_h != null) //guard against VCS time 0 negedge
-			//command_monitor_h.write_to_monitor(command.A, command.B, command.operation, command.crc, command.send_error_flag_data, command.send_error_flag_crc, command.send_error_flag_op, command.error_trig, command.op_err, command.flags, command.error_flag);
 			command_monitor_h.write_to_monitor(A, B, operation, crc, send_error_flag_data, send_error_flag_crc, send_error_flag_op, error_trig, op_err, flags, error_flag);
 	end : rst_monitor
 
 	
 
 	initial begin : result_monitor_thread
-		//result_monitor_h
 		forever begin
 			@(posedge clk) ;
-			if (done)
-				//result_monitor_h.write_to_monitor(result.C, result.crc_out, result.flags, result.error_flag);
+			if (done) begin
 				result_monitor_h.write_to_monitor(C);
+			end 
 			done = 1'b0;
-//			send_error_flag_data = 1'b0;
-//			send_error_flag_crc = 1'b0;
-//			send_error_flag_op = 1'b0;
 		end
 	end : result_monitor_thread
 

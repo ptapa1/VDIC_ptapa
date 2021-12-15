@@ -17,19 +17,6 @@ package alu_pkg;
 		no_op3                   = 3'b110,
 		no_op4                   = 3'b111} no_ops;
 	
-//	typedef struct packed {
-//		bit [31:0] A,B;
-//		bit [2:0] operation;
-//		bit [3:0] crc;
-//		bit send_error_flag_data,send_error_flag_crc,send_error_flag_op;
-//		bit [1:0] error_trig;
-//		no_ops op_err;
-//		bit [31:0] C;
-//		bit [3:0] flags;
-//		bit [2:0] crc_out;
-//		error_flags error_flag;
-//	} alu_input;
-	
 	
     typedef enum {
         COLOR_BOLD_BLACK_ON_GREEN,
@@ -57,22 +44,22 @@ package alu_pkg;
         $write(ctl);
     endfunction
 	
-	`include "command_transaction.svh"
-	`include "add_transaction.svh"
+	
+	
+	`include "random_command.svh"
+	`include "minmax_command.svh"
 	`include "result_transaction.svh"
+	
+	`include "coverage.svh"
 	
 	`include "command_monitor.svh"
 	`include "result_monitor.svh"
 	`include "driver.svh"
 	
-	`include "coverage.svh"
+	
 	`include "tester.svh"
 	`include "scoreboard.svh"
-	//`include "random_tester.svh"
-	//`include "add_tester.svh"
 	`include "env.svh"
 	`include "random_test.svh"
-	`include "add_test.svh"
-	//`include "ff_00_tester.svh"
 	`include "minmax_test.svh"
 endpackage : alu_pkg

@@ -4,7 +4,7 @@ class env extends uvm_env;
 
 	tester tester_h;
 	driver driver_h;
-	uvm_tlm_fifo #(command_transaction) command_f;
+	uvm_tlm_fifo #(random_command) command_f;
 	coverage coverage_h;
 	scoreboard scoreboard_h;
 	command_monitor command_monitor_h;
@@ -30,6 +30,8 @@ class env extends uvm_env;
 		command_f.put_ap.connect(coverage_h.analysis_export);
 		command_monitor_h.ap.connect(scoreboard_h.cmd_f.analysis_export);
 		result_monitor_h.ap.connect(scoreboard_h.analysis_export);
+		
+		command_monitor_h.ap.connect(coverage_h.analysis_export);
 	endfunction : connect_phase
 
 endclass
