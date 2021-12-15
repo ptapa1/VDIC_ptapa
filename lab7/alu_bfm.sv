@@ -36,9 +36,9 @@ interface alu_bfm;
 // reset task
 //------------------------------------------------------------------------------
 	task reset_alu();
-	//`ifdef DEBUG
+	`ifdef DEBUG
 		$display("%0t DEBUG: reset_alu", $time);
-	//`endif
+	`endif
 		@(negedge clk);
 		rst_n = 1'b0;
 		@(negedge clk);
