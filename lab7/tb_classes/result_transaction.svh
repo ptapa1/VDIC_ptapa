@@ -19,7 +19,6 @@ class result_transaction extends uvm_transaction;
 	virtual function string convert2string();
 		string s;
         s = $sformatf("result: %8h",C);
-		$timeformat(-9,2," ns",20);
         return s;
 	endfunction : convert2string
 	
