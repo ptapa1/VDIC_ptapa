@@ -7,7 +7,6 @@ class scoreboard extends uvm_subscriber #(result_transaction);
         TEST_FAILED
     } test_result;
 	
-	virtual alu_bfm bfm;
 	uvm_tlm_analysis_fifo #(random_command) cmd_f;
 	
 	protected test_result tr = TEST_PASSED;
@@ -17,8 +16,6 @@ class scoreboard extends uvm_subscriber #(result_transaction);
 	endfunction
 	
 	function void build_phase(uvm_phase phase);
-		if(!uvm_config_db #(virtual alu_bfm)::get(null, "*","bfm", bfm))
-           $fatal(1, "Failed to get BFM");
 		cmd_f = new("cmd_f", this);
 	endfunction : build_phase
 	
@@ -57,7 +54,7 @@ class scoreboard extends uvm_subscriber #(result_transaction);
 			or_op : predicted.C = cmd.A | cmd.B;
 			sub_op : predicted.C = cmd.B - cmd.A;
 			default: begin
-				$error("%0t INTERNAL ERROR. get_expected: unexpected case argument: %s", $time, operation_t'(cmd.operation));
+				//$error("%0t INTERNAL ERROR. get_expected: unexpected case argument: %s", $time, operation_t'(cmd.operation));
 				//return -1;
 			end
 		endcase
@@ -71,10 +68,11 @@ class scoreboard extends uvm_subscriber #(result_transaction);
 			string data_str;
 			random_command cmd;
 			result_transaction predicted_result;
+		
 			do
 	            if (!cmd_f.try_get(cmd))
 	                $fatal(1, "Missing command in self checker");
-			while(bfm.rst_n == 0);
+			while(cmd.operation == rst_op);
             
 			if(cmd.send_error_flag_data || cmd.send_error_flag_crc || cmd.send_error_flag_op) begin
 			`ifdef DEBUG
@@ -90,6 +88,7 @@ class scoreboard extends uvm_subscriber #(result_transaction);
 		
 		        if (!predicted_result.compare(t)) begin
 		            `uvm_error("SELF CHECKER", {"FAIL: ",data_str})
+		            $timeformat(-9,2," ns",20);
 		            tr = TEST_FAILED;
 		        end
 		        else

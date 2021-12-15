@@ -4,16 +4,12 @@ virtual class tester extends uvm_component;
 	
 	uvm_put_port #(random_command) command_port;
 	
-	virtual alu_bfm bfm;
-	
 	function new (string name,uvm_component parent);
 		super.new(name, parent);
 	endfunction
 	
 	function void build_phase(uvm_phase phase);
 		command_port = new("command_port", this);
-		if(!uvm_config_db #(virtual alu_bfm)::get(null, "*","bfm", bfm))
-			$fatal(1,"Failed to get BFM");
 	endfunction
 
 	protected function bit [3:0] get_crc;
@@ -45,7 +41,7 @@ virtual class tester extends uvm_component;
 		
 		phase.raise_objection(this);
 		command = new("command");
-		bfm.reset_alu();
+		command.operation = rst_op;
 		command_port.put(command);
 		command = random_command::type_id::create("command");
 		repeat(1000)begin
@@ -68,7 +64,7 @@ virtual class tester extends uvm_component;
 				command.send_error_flag_op <= 1'b1;
 				command.send_error_flag_crc <= 1'b0;
 				command.send_error_flag_data <= 1'b0;
-				command.operation = command.op_err;
+				command.operation = operation_t'(command.op_err);
 				command.crc = get_crc(command.B,command.A,command.operation);
 			end
 			else begin
@@ -76,10 +72,10 @@ virtual class tester extends uvm_component;
 				command.send_error_flag_crc <= 1'b0;
 				command.send_error_flag_data <= 1'b0;
 				command.crc = get_crc(command.B,command.A,command.operation);
-			end 
-			#100
+			end
 			command_port.put(command);
 		end
+
 		#500
 		phase.drop_objection(this);
 	endtask 

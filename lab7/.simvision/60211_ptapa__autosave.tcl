@@ -46,5 +46,6 @@ alias quit exit
 stop -create -name Randomize -randomize
 database -open -shm -into waves.shm waves -default
 probe -create -database waves top.bfm.A top.bfm.B top.bfm.C top.bfm.clk top.bfm.command_monitor_h top.bfm.crc top.bfm.crc_out top.bfm.done top.bfm.error_flag top.bfm.error_trig top.bfm.flags top.bfm.op top.bfm.op_err top.bfm.operation top.bfm.out top.bfm.result_monitor_h top.bfm.rst_n top.bfm.send_error_flag_crc top.bfm.send_error_flag_data top.bfm.send_error_flag_op top.bfm.sin top.bfm.sout -all -depth  2
+probe -create -database waves alu_pkg::command_monitor::type_name
 
-simvision -input /home/student/ptapa/VDIC/lab7/.simvision/4235_ptapa__autosave.tcl.svcf
+simvision -input /home/student/ptapa/VDIC/lab7/.simvision/60211_ptapa__autosave.tcl.svcf

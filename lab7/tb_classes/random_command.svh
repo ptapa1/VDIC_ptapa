@@ -90,7 +90,7 @@ class random_command extends uvm_transaction;
         string s;
 		 s = $sformatf("A: %8h  B: %8h  op: %s crc: %b \
 			data error flag: %b crc error flag: %b op error flag: %b \
-			error triggered?: %b op error: %s", A, B, operation, crc, send_error_flag_data, send_error_flag_crc, 
+			error triggered?: %b op error: %s", A, B, operation.name(), crc, send_error_flag_data, send_error_flag_crc, 
             send_error_flag_op, error_trig, op_err.name());
         return s;
     endfunction : convert2string

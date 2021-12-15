@@ -36,9 +36,9 @@ interface alu_bfm;
 // reset task
 //------------------------------------------------------------------------------
 	task reset_alu();
-	`ifdef DEBUG
+	//`ifdef DEBUG
 		$display("%0t DEBUG: reset_alu", $time);
-	`endif
+	//`endif
 		@(negedge clk);
 		rst_n = 1'b0;
 		@(negedge clk);
@@ -84,69 +84,77 @@ interface alu_bfm;
 		send_error_flag_op  = command.send_error_flag_op;
 		error_trig = command.error_trig;
 		op_err = command.op_err;
-		if(error_trig == 2'b01) begin
-			send_data(B[31:24]);
-			send_data(B[23:16]);
-			send_data(B[7:0]);
-			send_data(A[23:16]);
-			send_data(A[15:8]);
-			send_data(A[7:0]);
-			send_command(operation,crc);
-		end
-
-		else if(error_trig == 2'b10) begin
-			send_data(B[31:24]);
-			send_data(B[23:16]);
-			send_data(B[15:8]);
-			send_data(B[7:0]);
-			send_data(A[31:24]);
-			send_data(A[23:16]);
-			send_data(A[15:8]);
-			send_data(A[7:0]);
-			send_command(operation,crc);
-		end
-
-		else if(error_trig == 2'b11) begin
-			send_data(B[31:24]);
-			send_data(B[23:16]);
-			send_data(B[15:8]);
-			send_data(B[7:0]);
-			send_data(A[31:24]);
-			send_data(A[23:16]);
-			send_data(A[15:8]);
-			send_data(A[7:0]);
-			send_command(operation,crc);
-
-		end
-
-		else begin
-			send_data(B[31:24]);
-			send_data(B[23:16]);
-			send_data(B[15:8]);
-			send_data(B[7:0]);
-			send_data(A[31:24]);
-			send_data(A[23:16]);
-			send_data(A[15:8]);
-			send_data(A[7:0]);
-			send_command(operation,crc);
-		end
-
-		read_data(out);
-
-		if(out[54:53] == 2'b00)begin
-			process_data(out[54:44],C[31:24]);
-			process_data(out[43:33],C[23:16]);
-			process_data(out[32:22],C[15:8]);
-			process_data(out[21:11],C[7:0]);
-			process_command(out[10:0],flags,crc_out);
-		end
-		else if(out[54:53] == 2'b01)begin
-			process_error(out[54:44],error_flag);
-		end
-		else begin
-			$display("INTERNAL ERROR - incorrect packet returned\n");
-		end
-		done=1'b1;
+		case(operation)
+			rst_op: begin
+				reset_alu();
+			end
+			default: begin
+				if(error_trig == 2'b01) begin
+					send_data(B[31:24]);
+					send_data(B[23:16]);
+					send_data(B[7:0]);
+					send_data(A[23:16]);
+					send_data(A[15:8]);
+					send_data(A[7:0]);
+					send_command(operation,crc);
+				end
+		
+				else if(error_trig == 2'b10) begin
+					send_data(B[31:24]);
+					send_data(B[23:16]);
+					send_data(B[15:8]);
+					send_data(B[7:0]);
+					send_data(A[31:24]);
+					send_data(A[23:16]);
+					send_data(A[15:8]);
+					send_data(A[7:0]);
+					send_command(operation,crc);
+				end
+		
+				else if(error_trig == 2'b11) begin
+					send_data(B[31:24]);
+					send_data(B[23:16]);
+					send_data(B[15:8]);
+					send_data(B[7:0]);
+					send_data(A[31:24]);
+					send_data(A[23:16]);
+					send_data(A[15:8]);
+					send_data(A[7:0]);
+					send_command(operation,crc);
+		
+				end
+		
+				else begin
+					send_data(B[31:24]);
+					send_data(B[23:16]);
+					send_data(B[15:8]);
+					send_data(B[7:0]);
+					send_data(A[31:24]);
+					send_data(A[23:16]);
+					send_data(A[15:8]);
+					send_data(A[7:0]);
+					send_command(operation,crc);
+				end
+		
+				read_data(out);
+		
+				if(out[54:53] == 2'b00)begin
+					process_data(out[54:44],C[31:24]);
+					process_data(out[43:33],C[23:16]);
+					process_data(out[32:22],C[15:8]);
+					process_data(out[21:11],C[7:0]);
+					process_command(out[10:0],flags,crc_out);
+				end
+				else if(out[54:53] == 2'b01)begin
+					process_error(out[54:44],error_flag);
+				end
+				else begin
+					$display("INTERNAL ERROR - incorrect packet returned\n");
+				end
+				done=1'b1;
+			end 
+		endcase
+		@(negedge clk);
 	endtask
 
 
@@ -201,10 +209,13 @@ interface alu_bfm;
 		end 
 	end : op_monitor
 
-	always @(negedge rst_n) begin : rst_monitor
-		reset_alu();
-		if (command_monitor_h != null) //guard against VCS time 0 negedge
-			command_monitor_h.write_to_monitor(A, B, operation, crc, send_error_flag_data, send_error_flag_crc, send_error_flag_op, error_trig, op_err, flags, error_flag);
+	initial begin : rst_monitor
+		//reset_alu();
+		forever begin
+			@(negedge rst_n)
+				if (command_monitor_h != null) //guard against VCS time 0 negedge
+					command_monitor_h.write_to_monitor(A, B, rst_op, crc, send_error_flag_data, send_error_flag_crc, send_error_flag_op, error_trig, op_err, flags, error_flag);
+		end 
 	end : rst_monitor
 
 	

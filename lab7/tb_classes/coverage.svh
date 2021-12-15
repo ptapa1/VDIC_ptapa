@@ -33,6 +33,7 @@ class coverage extends uvm_subscriber #(random_command);
 		option.name = "cg_zeros_or_ones_on_ops";
 
 		all_ops : coverpoint operation {
+			ignore_bins null_op = {rst_op};
 		}
 
 		a_leg: coverpoint A {

@@ -62,8 +62,8 @@ browser timecontrol set -lock 0
 #
 # Waveform windows
 #
-if {[catch {window new WaveWindow -name "Waveform 1" -geometry 1920x1004+0+25}] != ""} {
-    window geometry "Waveform 1" 1920x1004+0+25
+if {[catch {window new WaveWindow -name "Waveform 1" -geometry 1920x974+0+0}] != ""} {
+    window geometry "Waveform 1" 1920x974+0+0
 }
 window target "Waveform 1" on
 waveform using {Waveform 1}
@@ -85,6 +85,7 @@ set id [waveform add -signals  {
 set id [waveform add -signals  {
 	simulator::top.bfm.C
 	} ]
+waveform hierarchy collapse $id
 set id [waveform add -signals  {
 	simulator::top.bfm.clk
 	} ]
@@ -92,6 +93,11 @@ set id [waveform add -signals  {
 	simulator::top.bfm.command_monitor_h
 	} ]
 waveform format $id -trace reference
+waveform hierarchy expand $id
+set id2 [lindex [waveform hierarchy content $id] 0]
+waveform format $id2 -trace reference
+set id2 [lindex [waveform hierarchy content $id] 1]
+waveform format $id2 -trace reference
 set id [waveform add -signals  {
 	simulator::top.bfm.crc
 	} ]
@@ -145,7 +151,7 @@ set id [waveform add -signals  {
 	simulator::top.bfm.sout
 	} ]
 
-waveform xview limits 228157455ps 415010543ps
+waveform xview limits 160494717ps 244226189ps
 
 #
 # Waveform Window Links
@@ -155,7 +161,7 @@ waveform xview limits 228157455ps 415010543ps
 # Console windows
 #
 console set -windowname Console
-window geometry Console 730x250+261+564
+window geometry Console 730x250+261+547
 
 #
 # Layout selection
