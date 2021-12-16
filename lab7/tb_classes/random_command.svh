@@ -17,7 +17,6 @@ class random_command extends uvm_transaction;
         B dist {[32'h00000001 : 32'hFFFFFFFE]:=1};
     }
 
- 	
 
     function void do_copy(uvm_object rhs);
         random_command copied_transaction_h;

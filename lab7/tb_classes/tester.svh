@@ -1,5 +1,5 @@
 
-virtual class tester extends uvm_component;
+class tester extends uvm_component;
 	`uvm_component_utils (tester)
 	
 	uvm_put_port #(random_command) command_port;
