@@ -42,7 +42,6 @@ class dual_test extends uvm_test;
 
         env_config env_config_h;
 	    
-	    $display("\nDUAL TEST SUCCESS1\n");
         if(!uvm_config_db #(virtual alu_bfm)::get(this, "","class_bfm", class_bfm))begin
             `uvm_fatal("DUAL TEST", "Failed to get CLASS BFM");
         end 
