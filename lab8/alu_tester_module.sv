@@ -91,15 +91,20 @@ module alu_tester_module(alu_bfm bfm);
 	initial begin
 		random_command command;
 		bfm.reset_alu();
-		repeat(28)begin
+		repeat(10000)begin
 			//@(negedge bfm.clk);
 			bfm.operation = get_op();
+			if(bfm.operation == rst_op) begin
+				bfm.operation = add_op;
+			end 
 			bfm.A      = get_data();
 			bfm.B      = get_data();
 			bfm.crc = get_crc(bfm.B,bfm.A,bfm.operation);
 			bfm.error_trig = trigger_error();
 			if(bfm.error_trig == 2'b01) begin//
 				bfm.send_error_flag_data <= 1'b1;
+				bfm.send_error_flag_crc <= 1'b0;
+				bfm.send_error_flag_op <= 1'b0;
 				bfm.send_data(bfm.B[31:24]);
 				bfm.send_data(bfm.B[23:16]);
 				bfm.send_data(bfm.B[7:0]);
@@ -111,6 +116,8 @@ module alu_tester_module(alu_bfm bfm);
 
 			else if(bfm.error_trig == 2'b10) begin
 				bfm.send_error_flag_crc <= 1'b1;
+				bfm.send_error_flag_data <= 1'b0;
+				bfm.send_error_flag_op <= 1'b0;
 				bfm.crc = bfm.crc + 2'($random);
 				bfm.send_data(bfm.B[31:24]);
 				bfm.send_data(bfm.B[23:16]);
@@ -125,6 +132,8 @@ module alu_tester_module(alu_bfm bfm);
 
 			else if(bfm.error_trig == 2'b11) begin
 				bfm.send_error_flag_op <= 1'b1;
+				bfm.send_error_flag_crc <= 1'b0;
+				bfm.send_error_flag_data <= 1'b0;
 				bfm.op = get_no_op();
 				bfm.crc = get_crc(bfm.B,bfm.A,bfm.op);
 				bfm.send_data(bfm.B[31:24]);
@@ -169,6 +178,7 @@ module alu_tester_module(alu_bfm bfm);
 			end
 			bfm.done = 1'b1;
 		end
+		
 	end 
 	
 	
