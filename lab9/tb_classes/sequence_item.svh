@@ -44,8 +44,8 @@ class sequence_item extends uvm_sequence_item;
             no_op3:=1};}
     
     constraint data {
-        A dist {[32'h00000001 : 32'hFFFFFFFE]:=1};
-        B dist {[32'h00000001 : 32'hFFFFFFFE]:=1};
+        A dist {[32'h00000000 : 32'hFFFFFFFF]:=1};
+        B dist {[32'h00000000 : 32'hFFFFFFFF]:=1};
     }
 
 //------------------------------------------------------------------------------

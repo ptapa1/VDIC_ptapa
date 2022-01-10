@@ -1,5 +1,5 @@
 
-class minmax_sequence extends uvm_sequence #(minmax_sequence_item);
+class minmax_sequence extends uvm_sequence #(sequence_item);
 	
 	`uvm_object_utils(minmax_sequence)
 	
@@ -14,7 +14,7 @@ class minmax_sequence extends uvm_sequence #(minmax_sequence_item);
         `uvm_do_with(req, {operation == rst_op;})
         
         repeat (1000) begin
-            `uvm_do(req);
+            `uvm_do_with(req,{ A dist {32'h00000000:=1, 32'hFFFFFFFF:=1}; B dist {32'h00000000:=1, 32'hFFFFFFFF:=1};});
         end
     endtask
 	

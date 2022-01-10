@@ -45,7 +45,7 @@ package alu_pkg;
     endfunction
 	
 	`include "sequence_item.svh"
-	`include "minmax_sequence_item.svh"
+	//`include "minmax_sequence_item.svh"
 	`include "result_transaction.svh"
 	`include "random_sequence.svh"
 	`include "minmax_sequence.svh"
