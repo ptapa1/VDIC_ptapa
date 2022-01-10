@@ -45,17 +45,11 @@ package alu_pkg;
     endfunction
 	
 	`include "sequence_item.svh"
-	//`include "minmax_sequence_item.svh"
 	`include "result_transaction.svh"
 	`include "random_sequence.svh"
 	`include "minmax_sequence.svh"
 	
 	`include "sequencer.svh"
-	//`include "runall_sequence.svh"
-	
-	//`include "random_command.svh"
-	//`include "minmax_command.svh"
-	
 	
 	`include "driver.svh"
 	`include "coverage.svh"
@@ -68,10 +62,4 @@ package alu_pkg;
 	`include "random_test.svh"
 	`include "minmax_test.svh"
 	
-	
-	//`include "tester.svh"
-	
-	
-	//`include "random_test.svh"
-	//`include "minmax_test.svh"
 endpackage : alu_pkg
